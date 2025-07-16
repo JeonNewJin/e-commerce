@@ -8,6 +8,7 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     // querydsl
     api("com.querydsl:querydsl-jpa::jakarta")
+    kapt("com.querydsl:querydsl-apt::jakarta")
     // jdbc-mysql
     runtimeOnly("com.mysql:mysql-connector-j")
 

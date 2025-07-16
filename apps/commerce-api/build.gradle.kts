@@ -15,7 +15,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${project.properties["springDocOpenApiVersion"]}")
 
     // querydsl
-    kapt("com.querydsl:querydsl-jpa::jakarta")
+    kapt("com.querydsl:querydsl-apt::jakarta")
 
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
