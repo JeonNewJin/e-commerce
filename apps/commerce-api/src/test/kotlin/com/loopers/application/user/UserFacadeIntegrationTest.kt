@@ -6,6 +6,7 @@ import com.loopers.domain.user.UserCommand
 import com.loopers.domain.user.UserRepository
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.CONFLICT
+import com.loopers.support.error.ErrorType.NOT_FOUND
 import com.loopers.utils.DatabaseCleanUp
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -55,6 +56,23 @@ class UserFacadeIntegrationTest @Autowired constructor(
         assertAll(
             { assertThat(result.errorType).isEqualTo(CONFLICT) },
             { assertThat(result.message).isEqualTo("동일한 ID로 이미 가입된 계정이 존재합니다.") },
+        )
+    }
+
+    @Test
+    fun `사용자 정보를 조회할 때, 존재하지 않는 사용자 ID로 조회하면, NOT_FOUND 예외가 발생한다`() {
+        // given
+        val userId = "wjsyuwls"
+
+        // when
+        val result = assertThrows<CoreException> {
+            userFacade.me(userId)
+        }
+
+        // then
+        assertAll(
+            { assertThat(result.errorType).isEqualTo(NOT_FOUND) },
+            { assertThat(result.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
         )
     }
 }

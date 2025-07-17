@@ -4,6 +4,7 @@ import com.loopers.domain.user.UserCommand
 import com.loopers.domain.user.UserService
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.CONFLICT
+import com.loopers.support.error.ErrorType.NOT_FOUND
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,4 +19,10 @@ class UserFacade(private val userService: UserService) {
         return userService.create(command)
             .let { UserInfo.from(it) }
     }
+
+    @Transactional(readOnly = true)
+    fun me(userId: String): UserInfo =
+        userService.find(userId)
+            ?.let { UserInfo.from(it) }
+            ?: throw CoreException(NOT_FOUND, "해당 사용자를 찾을 수 없습니다.")
 }
