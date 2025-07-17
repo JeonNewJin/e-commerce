@@ -1,6 +1,7 @@
 package com.loopers.application.point
 
 import com.loopers.domain.point.Point
+import com.loopers.domain.point.PointCommand
 import com.loopers.domain.point.PointRepository
 import com.loopers.domain.user.Gender.M
 import com.loopers.domain.user.User
@@ -95,5 +96,24 @@ class PointFacadeIntegrationTest @Autowired constructor(
                 { assertThat(result.balance.toPlainString()).isEqualTo(balance.toPlainString()) },
             )
         }
+    }
+
+    @Test
+    fun `포인트를 충전할 때, 사용자가 존재하지 않으면, NOT_FOUND 예외가 발생한다`() {
+        // given
+        val userId = "wjsyuwls"
+        val amount = BigDecimal.ONE
+        val command = PointCommand.Charge(userId, amount)
+
+        // when
+        val result = assertThrows<CoreException> {
+            pointFacade.charge(command)
+        }
+
+        // then
+        assertAll(
+            { assertThat(result.errorType).isEqualTo(NOT_FOUND) },
+            { assertThat(result.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
+        )
     }
 }

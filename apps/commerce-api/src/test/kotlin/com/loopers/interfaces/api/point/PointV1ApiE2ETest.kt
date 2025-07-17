@@ -19,8 +19,10 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.OK
+import org.springframework.http.HttpStatus.NOT_FOUND
 import java.math.BigDecimal
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -82,6 +84,65 @@ class PointV1ApiE2ETest @Autowired constructor(
                 { assertThat(response.statusCode).isEqualTo(OK) },
                 { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.SUCCESS) },
                 { assertThat(response.body?.data?.balance).isEqualTo(balance) },
+            )
+        }
+    }
+
+    @Nested
+    inner class `포인트를 충전할 때, ` {
+
+        var requestUrl = "/api/v1/points/charge"
+
+        @Test
+        fun `사용자가 존재하지 않으면, 404 Not Found 응답을 반환한다`() {
+            // given
+            val userId = "wjsyuwls"
+            val amount = BigDecimal(10_000L)
+
+            val headers = HttpHeaders().apply { set("X-USER-ID", userId) }
+            val body = PointV1Dto.Request.Charge(amount)
+            val httpEntity = HttpEntity(body, headers)
+
+            // when
+            val responseType = object : ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.PointResponse>>() {}
+            val response = testRestTemplate.exchange(requestUrl, POST, httpEntity, responseType)
+
+            // then
+            assertAll(
+                { assertThat(response.statusCode).isEqualTo(NOT_FOUND) },
+                { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.FAIL) },
+                { assertThat(response.body!!.meta.errorCode).isEqualTo(NOT_FOUND.reasonPhrase) },
+                { assertThat(response.body!!.meta.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
+            )
+        }
+
+        @Test
+        fun `1000 포인트 충전에 성공하면, 충전된 보유 총량을 응답으로 반환한다`() {
+            // given
+            val userId = "wjsyuwls"
+            val email = "wjsyuwls@gmail.com"
+            val birthdate = "2000-01-01"
+            val gender = M
+            userRepository.save(User(userId, email, birthdate, gender))
+
+            val balance = BigDecimal(10_000L)
+            pointRepository.save(Point(userId, balance))
+
+            val amount = BigDecimal(1_000L)
+
+            val headers = HttpHeaders().apply { set("X-USER-ID", userId) }
+            val body = PointV1Dto.Request.Charge(amount)
+            val httpEntity = HttpEntity(body, headers)
+
+            // when
+            val responseType = object : ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.PointResponse>>() {}
+            val response = testRestTemplate.exchange(requestUrl, POST, httpEntity, responseType)
+
+            // then
+            assertAll(
+                { assertThat(response.statusCode).isEqualTo(OK) },
+                { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.SUCCESS) },
+                { assertThat(response.body?.data?.balance).isEqualTo(balance + amount) },
             )
         }
     }

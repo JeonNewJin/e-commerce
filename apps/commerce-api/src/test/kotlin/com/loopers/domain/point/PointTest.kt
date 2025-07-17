@@ -46,4 +46,43 @@ class PointTest {
             )
         }
     }
+
+    @Nested
+    inner class `포인트를 충전할 때,` {
+
+        @Test
+        fun `0 이하의 포인트를 충전하면, ILLEGAL_ARGUMENT 예외가 발생한다`() {
+            // given
+            val userId = "wjsyuwls"
+            val balance = BigDecimal(10_000L)
+            val point = Point(userId, balance)
+            val amount = BigDecimal.ZERO
+
+            // when
+            val result = assertThrows<IllegalArgumentException> {
+                point.charge(amount)
+            }
+
+            // then
+            assertAll(
+                { assertThat(result.javaClass).isEqualTo(IllegalArgumentException::class.java) },
+                { assertThat(result.message).isEqualTo("0 이하의 정수로 포인트를 충전할 수 없습니다.") },
+            )
+        }
+
+        @Test
+        fun `0 보다 큰 포인트를 충전하면, 해당 포인트의 잔액이 정상적으로 증가한다`() {
+            // given
+            val userId = "wjsyuwls"
+            val balance = BigDecimal(10_000L)
+            val point = Point(userId, balance)
+            val amount = BigDecimal.ONE
+
+            // when
+            point.charge(amount)
+
+            // then
+            assertThat(point.balance).isEqualTo(balance + amount)
+        }
+    }
 }

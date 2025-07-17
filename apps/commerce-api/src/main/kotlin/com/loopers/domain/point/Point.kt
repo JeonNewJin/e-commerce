@@ -20,4 +20,10 @@ class Point(userId: String, balance: BigDecimal = BigDecimal.ZERO) : BaseEntity(
     init {
         require(balance >= BigDecimal.ZERO) { "잔액은 0보다 작을 수 없습니다." }
     }
+
+    fun charge(amount: BigDecimal) {
+        require(amount > BigDecimal.ZERO) { "0 이하의 정수로 포인트를 충전할 수 없습니다." }
+
+        balance += amount
+    }
 }

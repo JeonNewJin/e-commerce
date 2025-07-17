@@ -1,3 +1,12 @@
 ### 포인트 조회
 GET {{commerce-api}}/api/v1/points
 X-USER-ID: wjsyuwls
+
+### 포인트 충전
+POST {{commerce-api}}/api/v1/points/charge
+Content-Type: application/json
+X-USER-ID: wjsyuwls
+
+{
+  "amount": "1000"
+}
