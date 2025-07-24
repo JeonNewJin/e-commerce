@@ -1,0 +1,14 @@
+### 회원가입
+POST {{commerce-api}}/api/v1/users
+Content-Type: application/json
+
+{
+  "userId": "wjsyuwls",
+  "email": "wjsyuwls@gmail.com",
+  "birthdate": "2000-01-01",
+  "gender": "M"
+}
+
+### 내 정보 조회
+GET {{commerce-api}}/api/v1/users/me
+X-USER-ID: wjsyuwls
