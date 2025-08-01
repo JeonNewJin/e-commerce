@@ -17,17 +17,17 @@ interface UserV1ApiSpec {
         summary = "회원가입",
         description = "회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환합니다.",
     )
-    fun signup(
+    fun signUp(
         @RequestBody(
             description = "회원가입 파라미터",
             required = true,
             content = [
                 Content(
-                    schema = Schema(UserV1Dto.Request.Signup::class),
+                    schema = Schema(UserV1Dto.Request.SignUp::class),
                 ),
             ],
         )
-        request: UserV1Dto.Request.Signup,
+        request: UserV1Dto.Request.SignUp,
     ): ApiResponse<UserV1Dto.Response.UserResponse>
 
     @Operation(

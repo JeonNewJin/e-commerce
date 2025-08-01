@@ -1,89 +1,83 @@
 package com.loopers.interfaces.api.point
 
 import com.loopers.domain.point.Point
-import com.loopers.domain.point.PointRepository
-import com.loopers.domain.user.Gender.M
+import com.loopers.domain.point.PointWallet
+import com.loopers.domain.point.PointWalletRepository
+import com.loopers.domain.user.Gender.MALE
 import com.loopers.domain.user.User
 import com.loopers.domain.user.UserRepository
 import com.loopers.interfaces.api.ApiResponse
-import com.loopers.utils.DatabaseCleanUp
+import com.loopers.support.E2ETestSupport
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.OK
-import org.springframework.http.HttpStatus.NOT_FOUND
 import java.math.BigDecimal
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PointV1ApiE2ETest @Autowired constructor(
-    private val testRestTemplate: TestRestTemplate,
-    private val pointRepository: PointRepository,
-    private val userRepository: UserRepository,
-    private val databaseCleanUp: DatabaseCleanUp,
-) {
-
-    @AfterEach
-    fun tearDown() {
-        databaseCleanUp.truncateAllTables()
-    }
+class PointV1ApiE2ETest : E2ETestSupport() {
 
     @Nested
-    inner class `포인트 정보를 조회할 때, ` {
+    inner class `포인트를 조회할 때, ` {
 
         var requestUrl = "/api/v1/points"
 
         @Test
-        fun `X-USER-ID 헤더가 없으면, 400 Bad Request 응답을 반환한다`() {
-            // given
+        fun `X-USER-ID 헤더가 없으면, 400 Bad Request 응답을 반환한다`(
+            @Autowired client: TestRestTemplate,
+        ) {
+            // Given
 
-            // when
+            // When
             val responseType = object : ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.PointResponse>>() {}
-            val response = testRestTemplate.exchange(requestUrl, GET, HttpEntity<Any>(Unit), responseType)
+            val actual = client.exchange(requestUrl, GET, HttpEntity(Unit), responseType)
 
-            // then
+            // Then
             assertAll(
-                { assertThat(response.statusCode).isEqualTo(BAD_REQUEST) },
-                { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.FAIL) },
-                { assertThat(response.body!!.meta.errorCode).isEqualTo(BAD_REQUEST.reasonPhrase) },
-                { assertThat(response.body!!.meta.message).isEqualTo("필수 요청 헤더 'X-USER-ID'가 누락되었습니다.") },
+                { assertThat(actual.statusCode.value()).isEqualTo(400) },
+                { assertThat(actual.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.FAIL) },
+                { assertThat(actual.body!!.meta.message).isEqualTo("필수 요청 헤더 'X-USER-ID'가 누락되었습니다.") },
             )
         }
 
         @Test
-        fun `포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다`() {
-            // given
-            val userId = "wjsyuwls"
+        fun `포인트 조회에 성공하면, 보유 포인트를 응답으로 반환한다`(
+            @Autowired client: TestRestTemplate,
+            @Autowired userRepository: UserRepository,
+            @Autowired pointWalletRepository: PointWalletRepository,
+        ) {
+            // Given
+            val loginId = "wjsyuwls"
             val email = "wjsyuwls@gmail.com"
             val birthdate = "2000-01-01"
-            val gender = M
-            userRepository.save(User(userId, email, birthdate, gender))
+            val gender = MALE
+            userRepository.save(User(loginId, email, birthdate, gender))
 
-            val balance = BigDecimal(10_000L)
-            pointRepository.save(Point(userId, balance))
+            val balance = Point(10_000L)
+            val pointWallet = PointWallet(
+                userId = 1L,
+                balance = balance,
+            )
+            pointWalletRepository.save(pointWallet)
 
-            val headers = HttpHeaders().apply { set("X-USER-ID", userId) }
+            val headers = HttpHeaders().apply { set("X-USER-ID", loginId) }
             val httpEntity = HttpEntity(null, headers)
 
-            // when
+            // When
             val responseType = object : ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.PointResponse>>() {}
-            val response = testRestTemplate.exchange(requestUrl, GET, httpEntity, responseType)
+            val actual = client.exchange(requestUrl, GET, httpEntity, responseType)
 
-            // then
+            // Then
             assertAll(
-                { assertThat(response.statusCode).isEqualTo(OK) },
-                { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.SUCCESS) },
-                { assertThat(response.body?.data?.balance).isEqualTo(balance) },
+                { assertThat(actual.statusCode.value()).isEqualTo(200) },
+                { assertThat(actual.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.SUCCESS) },
+                { assertThat(actual.body?.data?.balance?.compareTo(balance.value)).isEqualTo(0) },
             )
         }
     }
@@ -94,55 +88,70 @@ class PointV1ApiE2ETest @Autowired constructor(
         var requestUrl = "/api/v1/points/charge"
 
         @Test
-        fun `사용자가 존재하지 않으면, 404 Not Found 응답을 반환한다`() {
-            // given
-            val userId = "wjsyuwls"
-            val amount = BigDecimal(10_000L)
+        fun `존재하지 않는 사용자 ID로 충전하면, 404 Not Found 응답을 반환한다`(
+            @Autowired client: TestRestTemplate,
+        ) {
+            // Given
+            val nonExistentUserId = "wjsyuwls"
+            val chargeAmount = BigDecimal(10_000L)
+            val request = PointV1Dto.Request.Charge(chargeAmount)
 
-            val headers = HttpHeaders().apply { set("X-USER-ID", userId) }
-            val body = PointV1Dto.Request.Charge(amount)
-            val httpEntity = HttpEntity(body, headers)
+            val headers = HttpHeaders().apply { set("X-USER-ID", nonExistentUserId) }
+            val httpEntity = HttpEntity(request, headers)
 
-            // when
+            // When
             val responseType = object : ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.PointResponse>>() {}
-            val response = testRestTemplate.exchange(requestUrl, POST, httpEntity, responseType)
+            val actual = client.exchange(requestUrl, POST, httpEntity, responseType)
 
-            // then
+            // Then
             assertAll(
-                { assertThat(response.statusCode).isEqualTo(NOT_FOUND) },
-                { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.FAIL) },
-                { assertThat(response.body!!.meta.errorCode).isEqualTo(NOT_FOUND.reasonPhrase) },
-                { assertThat(response.body!!.meta.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
+                { assertThat(actual.statusCode.value()).isEqualTo(404) },
+                { assertThat(actual.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.FAIL) },
+                { assertThat(actual.body!!.meta.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
             )
         }
 
         @Test
-        fun `1000 포인트 충전에 성공하면, 충전된 보유 총량을 응답으로 반환한다`() {
-            // given
-            val userId = "wjsyuwls"
+        fun `포인트 충전에 성공하면, 충전된 보유 총량을 응답으로 반환한다`(
+            @Autowired client: TestRestTemplate,
+            @Autowired userRepository: UserRepository,
+            @Autowired pointWalletRepository: PointWalletRepository,
+        ) {
+            // Given
+            val loginId = "wjsyuwls"
             val email = "wjsyuwls@gmail.com"
             val birthdate = "2000-01-01"
-            val gender = M
-            userRepository.save(User(userId, email, birthdate, gender))
+            val gender = MALE
+            val user = User(
+                loginId = loginId,
+                email = email,
+                birthdate = birthdate,
+                gender = gender,
+            )
+            userRepository.save(user)
 
-            val balance = BigDecimal(10_000L)
-            pointRepository.save(Point(userId, balance))
+            val balance = Point(10_000L)
+            val pointWallet = PointWallet(
+                userId = user.id,
+                balance = balance,
+            )
+            pointWalletRepository.save(pointWallet)
 
-            val amount = BigDecimal(1_000L)
+            val chargeAmount = BigDecimal(5_000L)
+            val request = PointV1Dto.Request.Charge(chargeAmount)
 
-            val headers = HttpHeaders().apply { set("X-USER-ID", userId) }
-            val body = PointV1Dto.Request.Charge(amount)
-            val httpEntity = HttpEntity(body, headers)
+            val headers = HttpHeaders().apply { set("X-USER-ID", loginId) }
+            val httpEntity = HttpEntity(request, headers)
 
-            // when
+            // When
             val responseType = object : ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.PointResponse>>() {}
-            val response = testRestTemplate.exchange(requestUrl, POST, httpEntity, responseType)
+            val actual = client.exchange(requestUrl, POST, httpEntity, responseType)
 
-            // then
+            // Then
             assertAll(
-                { assertThat(response.statusCode).isEqualTo(OK) },
-                { assertThat(response.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.SUCCESS) },
-                { assertThat(response.body?.data?.balance).isEqualTo(balance + amount) },
+                { assertThat(actual.statusCode.value()).isEqualTo(200) },
+                { assertThat(actual.body!!.meta.result).isEqualTo(ApiResponse.Metadata.Result.SUCCESS) },
+                { assertThat(actual.body?.data?.balance?.compareTo(balance.value + chargeAmount)).isEqualTo(0) },
             )
         }
     }

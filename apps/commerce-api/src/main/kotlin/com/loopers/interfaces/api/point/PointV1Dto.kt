@@ -1,13 +1,14 @@
 package com.loopers.interfaces.api.point
 
-import com.loopers.application.point.PointInfo
-import com.loopers.domain.point.PointCommand
+import com.loopers.application.point.PointWalletInput
+import com.loopers.application.point.PointWalletOutput
+import com.loopers.domain.point.Point
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 
-object PointV1Dto {
+class PointV1Dto private constructor() {
 
     class Request {
 
@@ -17,10 +18,11 @@ object PointV1Dto {
             @field:DecimalMin(value = "1", message = "충전 금액은 0 보다 커야 합니다.")
             val amount: BigDecimal,
         ) {
-            fun toCommand(userId: String) = PointCommand.Charge(
-                userId = userId,
-                amount = amount,
-            )
+            fun toInput(loginId: String) =
+                PointWalletInput.Charge(
+                    loginId = loginId,
+                    amount = Point(amount),
+                )
         }
     }
 
@@ -28,9 +30,9 @@ object PointV1Dto {
 
         data class PointResponse(val balance: BigDecimal) {
             companion object {
-                fun from(pointInfo: PointInfo): PointResponse =
+                fun from(output: PointWalletOutput): PointResponse =
                     PointResponse(
-                        balance = pointInfo.balance,
+                        balance = output.balance,
                     )
             }
         }
