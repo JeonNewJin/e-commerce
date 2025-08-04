@@ -56,7 +56,7 @@ class LikeService(private val likeRepository: LikeRepository) {
     }
 
     fun getLikeCount(
-        targetType: LikeTargetType,
+        targetType: LikeableType,
         targetId: Long,
     ): LikeCountInfo =
         likeRepository.findLikeCountByTarget(LikeTarget(targetId, targetType))
@@ -64,7 +64,7 @@ class LikeService(private val likeRepository: LikeRepository) {
             ?: throw CoreException(NOT_FOUND, "좋아요 카운트를 찾을 수 없습니다.")
 
     fun findLikeCounts(
-        targetType: LikeTargetType,
+        targetType: LikeableType,
         targetIds: List<Long>,
     ): List<LikeCountInfo> =
         likeRepository.findLikeCounts(targetType, targetIds)

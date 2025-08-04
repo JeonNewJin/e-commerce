@@ -1,6 +1,7 @@
 package com.loopers.domain.like
 
-enum class LikeTargetType {
+enum class LikeableType {
     PRODUCT,
     BRAND,
+    REVIEW,
 }

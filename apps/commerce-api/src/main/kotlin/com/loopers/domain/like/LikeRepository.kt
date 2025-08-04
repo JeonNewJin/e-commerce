@@ -18,7 +18,7 @@ interface LikeRepository {
     fun findLikeCountByTarget(likeTarget: LikeTarget): LikeCount?
 
     fun findLikeCounts(
-        targetType: LikeTargetType,
+        targetType: LikeableType,
         targetIds: List<Long>,
     ): List<LikeCount>
 

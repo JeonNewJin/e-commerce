@@ -41,7 +41,7 @@ class OrderFacade(
         val orderCommand = OrderCommand.PlaceOrder(userId = user.id, orderLines = orderLines)
         val order = orderService.placeOrder(orderCommand)
 
-        val command = PointWalletCommand.Use(userId = user.id, amount = Point(order.totalPrice))
+        val command = PointWalletCommand.Use(userId = user.id, amount = Point.of(order.totalPrice))
         pointWalletService.use(command)
 
         orderLines.forEach { orderLine ->

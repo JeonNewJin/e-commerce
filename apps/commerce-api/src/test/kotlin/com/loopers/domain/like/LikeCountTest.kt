@@ -1,6 +1,6 @@
 package com.loopers.domain.like
 
-import com.loopers.domain.like.LikeTargetType.PRODUCT
+import com.loopers.domain.like.LikeableType.PRODUCT
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import org.assertj.core.api.Assertions.assertThat

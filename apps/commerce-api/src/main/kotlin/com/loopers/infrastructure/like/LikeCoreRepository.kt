@@ -5,7 +5,7 @@ import com.loopers.domain.like.LikeCommand
 import com.loopers.domain.like.LikeCount
 import com.loopers.domain.like.LikeRepository
 import com.loopers.domain.like.LikeTarget
-import com.loopers.domain.like.LikeTargetType
+import com.loopers.domain.like.LikeableType
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 
@@ -37,7 +37,7 @@ class LikeCoreRepository(
         likeCountJpaRepository.findByTarget(likeTarget)
 
     override fun findLikeCounts(
-        targetType: LikeTargetType,
+        targetType: LikeableType,
         targetIds: List<Long>,
     ): List<LikeCount> = likeCountJpaRepository.findByTargetTypeAndTargetIds(targetType, targetIds)
 

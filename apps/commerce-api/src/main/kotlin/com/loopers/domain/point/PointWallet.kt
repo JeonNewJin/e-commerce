@@ -9,17 +9,13 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "point_wallet")
-class PointWallet private constructor(userId: Long, balance: Point) : BaseEntity() {
+class PointWallet(userId: Long, balance: Point = Point.ZERO) : BaseEntity() {
 
     val userId: Long = userId
 
     @Embedded
     var balance: Point = balance
         private set
-
-    companion object {
-        operator fun invoke(userId: Long, balance: Point = Point.ZERO): PointWallet = PointWallet(userId, balance)
-    }
 
     fun charge(amount: Point) {
         require(amount.isNotZero()) {

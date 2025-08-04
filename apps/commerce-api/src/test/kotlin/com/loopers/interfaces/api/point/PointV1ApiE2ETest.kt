@@ -59,7 +59,7 @@ class PointV1ApiE2ETest : E2ETestSupport() {
             val gender = MALE
             userRepository.save(User(loginId, email, birthdate, gender))
 
-            val balance = Point(10_000L)
+            val balance = Point.of(10_000L)
             val pointWallet = PointWallet(
                 userId = 1L,
                 balance = balance,
@@ -130,7 +130,7 @@ class PointV1ApiE2ETest : E2ETestSupport() {
             )
             userRepository.save(user)
 
-            val balance = Point(10_000L)
+            val balance = Point.of(10_000L)
             val pointWallet = PointWallet(
                 userId = user.id,
                 balance = balance,

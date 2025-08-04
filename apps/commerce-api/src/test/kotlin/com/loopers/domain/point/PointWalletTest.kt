@@ -14,7 +14,7 @@ class PointWalletTest {
     fun `포인트 지갑이 정상 생성된다`() {
         // Given
         val userId = 1L
-        val balance = Point(1000L)
+        val balance = Point.of(1000L)
 
         // When
         val actual = PointWallet(userId, balance)
@@ -33,7 +33,7 @@ class PointWalletTest {
         fun `충전할 포인트가 0 이면, BAD_REQUEST 예외가 발생한다`() {
             // Given
             val userId = 1L
-            val balance = Point(1000L)
+            val balance = Point.of(1000L)
             val pointWallet = PointWallet(userId, balance)
             val chargeAmount = Point.ZERO
 
@@ -53,9 +53,9 @@ class PointWalletTest {
         fun `충전할 포인트가 0 보다 크면, 정상 충전된다`() {
             // Given
             val userId = 1L
-            val balance = Point(5000L)
+            val balance = Point.of(5000L)
             val pointWallet = PointWallet(userId, balance)
-            val chargeAmount = Point(1L)
+            val chargeAmount = Point.of(1L)
             val expectedBalance = balance.plus(chargeAmount)
 
             // When
@@ -73,7 +73,7 @@ class PointWalletTest {
         fun `사용할 포인트가 0 이면, BAD_REQUEST 예외가 발생한다`() {
             // Given
             val userId = 1L
-            val balance = Point(5000L)
+            val balance = Point.of(5000L)
             val pointWallet = PointWallet(userId, balance)
             val useAmount = Point.ZERO
 
@@ -93,9 +93,9 @@ class PointWalletTest {
         fun `사용할 포인트가 0 보다 크면, 정상 사용된다`() {
             // Given
             val userId = 1L
-            val balance = Point(5000L)
+            val balance = Point.of(5000L)
             val pointWallet = PointWallet(userId, balance)
-            val useAmount = Point(5000L)
+            val useAmount = Point.of(5000L)
             val expectedBalance = balance.minus(useAmount)
 
             // When

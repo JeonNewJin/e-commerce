@@ -42,7 +42,7 @@ class PointWalletServiceTest(
             val userId = 1L
             val pointWallet = PointWallet(
                 userId = userId,
-                Point(10_000L),
+                Point.of(10_000L),
             )
             pointWalletRepository.save(pointWallet)
 
@@ -107,7 +107,7 @@ class PointWalletServiceTest(
             // Given
             val command = PointWalletCommand.Charge(
                 userId = 1L,
-                amount = Point(10_000L),
+                amount = Point.of(10_000L),
             )
 
             // When
@@ -126,8 +126,8 @@ class PointWalletServiceTest(
         fun `포인트 지갑이 존재하는 사용자 ID로 충전하면, 포인트를 충전하고 합산된 잔액을 저장한다`() {
             // Given
             val userId = 1L
-            val balance = Point(5_000L)
-            val chargeAmount = Point(1_000L)
+            val balance = Point.of(5_000L)
+            val chargeAmount = Point.of(1_000L)
 
             val pointWallet = PointWallet(
                 userId = userId,
@@ -154,8 +154,8 @@ class PointWalletServiceTest(
         fun `포인트 지갑이 존재하는 사용자 ID로 충전하면, 포인트를 충전하고 합산된 잔액을 반환한다`() {
             // Given
             val userId = 1L
-            val balance = Point(5_000L)
-            val chargeAmount = Point(1_000L)
+            val balance = Point.of(5_000L)
+            val chargeAmount = Point.of(1_000L)
 
             val pointWallet = PointWallet(
                 userId = userId,

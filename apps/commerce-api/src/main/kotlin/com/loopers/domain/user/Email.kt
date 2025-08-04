@@ -7,19 +7,17 @@ import jakarta.persistence.Embeddable
 import kotlin.String
 
 @Embeddable
-data class Email private constructor(
+data class Email(
     @Column(name = "email")
     val value: String,
 ) {
+    init {
+        require(EMAIL_PATTERN.matches(value)) {
+            throw CoreException(BAD_REQUEST, "이메일 형식이 올바르지 않습니다.")
+        }
+    }
+
     companion object {
         private val EMAIL_PATTERN = Regex("^[A-Za-z0-9._%+-]+@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\\.)+[A-Za-z]{2,}$")
-
-        operator fun invoke(value: kotlin.String): Email {
-            require(EMAIL_PATTERN.matches(value)) {
-                throw CoreException(BAD_REQUEST, "이메일 형식이 올바르지 않습니다.")
-            }
-
-            return Email(value)
-        }
     }
 }

@@ -2,7 +2,7 @@ package com.loopers.application.product
 
 import com.loopers.domain.brand.BrandService
 import com.loopers.domain.like.LikeService
-import com.loopers.domain.like.LikeTargetType.PRODUCT
+import com.loopers.domain.like.LikeableType.PRODUCT
 import com.loopers.domain.product.ProductService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

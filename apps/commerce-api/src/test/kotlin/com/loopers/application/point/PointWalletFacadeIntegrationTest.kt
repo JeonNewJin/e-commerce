@@ -81,7 +81,7 @@ class PointWalletFacadeIntegrationTest @Autowired constructor(
 
             val pointWallet = PointWallet(
                 userId = user.id,
-                balance = Point(5_000L),
+                balance = Point.of(5_000L),
             )
             pointWalletRepository.save(pointWallet)
 
@@ -105,7 +105,7 @@ class PointWalletFacadeIntegrationTest @Autowired constructor(
             // Given
             val input = PointWalletInput.Charge(
                 loginId = "wjsyuwls",
-                amount = Point(5_000L),
+                amount = Point.of(5_000L),
             )
 
             // When
@@ -134,13 +134,13 @@ class PointWalletFacadeIntegrationTest @Autowired constructor(
 
             val pointWallet = PointWallet(
                 userId = user.id,
-                balance = Point(5_000L),
+                balance = Point.of(5_000L),
             )
             pointWalletRepository.save(pointWallet)
 
             val input = PointWalletInput.Charge(
                 loginId = loginId,
-                amount = Point(1_000L),
+                amount = Point.of(1_000L),
             )
 
             // When

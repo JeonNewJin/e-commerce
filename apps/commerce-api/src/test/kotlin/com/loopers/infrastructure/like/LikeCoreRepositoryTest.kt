@@ -2,7 +2,7 @@ package com.loopers.infrastructure.like
 
 import com.loopers.domain.like.LikeCount
 import com.loopers.domain.like.LikeTarget
-import com.loopers.domain.like.LikeTargetType.PRODUCT
+import com.loopers.domain.like.LikeableType.PRODUCT
 import com.loopers.support.IntegrationTestSupport
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple

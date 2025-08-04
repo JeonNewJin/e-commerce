@@ -15,7 +15,7 @@ data class Point private constructor(
     companion object {
         val ZERO: Point = Point(BigDecimal.ZERO)
 
-        operator fun invoke(value: Number): Point {
+        fun of(value: Number): Point {
             val decimal = when (value) {
                 is BigDecimal -> value
                 is Long, is Int -> BigDecimal.valueOf(value.toLong())

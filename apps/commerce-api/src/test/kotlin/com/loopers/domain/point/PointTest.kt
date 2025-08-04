@@ -21,7 +21,7 @@ class PointTest {
 
             // When
             val actual = assertThrows<CoreException> {
-                Point(negativePoint)
+                Point.of(negativePoint)
             }
 
             // Then
@@ -32,12 +32,29 @@ class PointTest {
         }
 
         @Test
+        fun `지원하지 않는 숫자 타입이면, BAD_REQUEST 예외가 발생한다`() {
+            // Given
+            val unsupportedType = 1.toShort()
+
+            // When
+            val actual = assertThrows<CoreException> {
+                Point.of(unsupportedType)
+            }
+
+            // Then
+            assertAll(
+                { assertThat(actual.errorType).isEqualTo(BAD_REQUEST) },
+                { assertThat(actual.message).isEqualTo("지원하지 않는 숫자 타입입니다.") },
+            )
+        }
+
+        @Test
         fun `포인트가 0 이상이면, 정상 생성된다`() {
             // Given
             val point = BigDecimal.ZERO
 
             // When
-            val actual = Point(point)
+            val actual = Point.of(point)
 
             // Then
             assertThat(actual.value).isEqualTo(point)

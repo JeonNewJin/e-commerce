@@ -1,5 +1,6 @@
 package com.loopers.domain.order
 
+import com.loopers.domain.order.OrderStatus.PAYMENT_PENDING
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.NOT_FOUND
 import org.springframework.data.domain.Page
@@ -15,7 +16,7 @@ class OrderService(private val orderRepository: OrderRepository) {
         val order = Order(
             userId = command.userId,
             orderLines = command.orderLines,
-            status = OrderStatus.PAYMENT_PENDING,
+            status = PAYMENT_PENDING,
         )
         orderRepository.save(order)
         return OrderInfo.from(order)

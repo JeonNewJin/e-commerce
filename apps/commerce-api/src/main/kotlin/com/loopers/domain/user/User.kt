@@ -9,35 +9,20 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "member")
-class User private constructor(loginId: LoginId, email: Email, birthdate: Birthdate, gender: Gender) : BaseEntity() {
+class User(loginId: String, email: String, birthdate: String, gender: Gender) : BaseEntity() {
 
     @Embedded
-    var loginId: LoginId = loginId
+    val loginId: LoginId = LoginId(loginId)
+
+    @Embedded
+    var email: Email = Email(email)
         private set
 
     @Embedded
-    var email: Email = email
-        private set
-
-    @Embedded
-    var birthdate: Birthdate = birthdate
+    var birthdate: Birthdate = Birthdate(birthdate)
         private set
 
     @Enumerated(STRING)
     var gender: Gender = gender
         private set
-
-    companion object {
-        operator fun invoke(
-            loginId: String,
-            email: String,
-            birthdate: String,
-            gender: Gender,
-        ): User = User(
-            loginId = LoginId(loginId),
-            email = Email(email),
-            birthdate = Birthdate(birthdate),
-            gender = gender,
-        )
-    }
 }

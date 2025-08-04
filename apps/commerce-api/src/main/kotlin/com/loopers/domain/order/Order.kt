@@ -1,6 +1,8 @@
 package com.loopers.domain.order
 
 import com.loopers.domain.BaseEntity
+import com.loopers.domain.order.OrderStatus.PAYMENT_COMPLETED
+import com.loopers.domain.order.OrderStatus.PAYMENT_PENDING
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import jakarta.persistence.CascadeType
@@ -12,8 +14,7 @@ import java.math.BigDecimal
 
 @Entity
 @Table(name = "orders")
-class Order private constructor(userId: Long, orderLines: List<OrderLine>, totalPrice: BigDecimal, status: OrderStatus) :
-    BaseEntity() {
+class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus) : BaseEntity() {
 
     val userId: Long = userId
 
@@ -21,33 +22,27 @@ class Order private constructor(userId: Long, orderLines: List<OrderLine>, total
     @JoinColumn(name = "order_id")
     val orderLines: List<OrderLine> = orderLines
 
-    val totalPrice: BigDecimal = totalPrice
+    val totalPrice: BigDecimal = calculateTotalPrice()
 
     var status: OrderStatus = status
         private set
 
-    companion object {
-        operator fun invoke(userId: Long, orderLines: List<OrderLine>, status: OrderStatus): Order {
-            require(orderLines.isNotEmpty()) {
-                throw CoreException(BAD_REQUEST, "주문 항목은 비어 있을 수 없습니다.")
-            }
-
-            return Order(
-                userId = userId,
-                orderLines = orderLines,
-                totalPrice = calculateTotalPrice(orderLines),
-                status = status,
-            )
+    init {
+        require(userId > 0) {
+            throw CoreException(BAD_REQUEST, "유효하지 않은 사용자 ID 입니다. 사용자 ID: $userId")
         }
-
-        private fun calculateTotalPrice(orderLines: List<OrderLine>): BigDecimal = orderLines.sumOf { it.calculateLinePrice() }
+        require(orderLines.isNotEmpty()) {
+            throw CoreException(BAD_REQUEST, "주문 항목은 비어 있을 수 없습니다.")
+        }
     }
 
+    private fun calculateTotalPrice(): BigDecimal = orderLines.sumOf { it.calculateLinePrice() }
+
     fun completePayment() {
-        if (status != OrderStatus.PAYMENT_PENDING) {
+        if (status != PAYMENT_PENDING) {
             throw CoreException(BAD_REQUEST, "주문 상태가 결제 대기 중이 아닙니다. 현재 상태: $status")
         }
 
-        status = OrderStatus.PAYMENT_COMPLETED
+        status = PAYMENT_COMPLETED
     }
 }

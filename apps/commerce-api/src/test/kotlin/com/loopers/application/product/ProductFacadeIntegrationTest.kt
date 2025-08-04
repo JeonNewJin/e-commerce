@@ -2,7 +2,7 @@ package com.loopers.application.product
 
 import com.loopers.domain.brand.Brand
 import com.loopers.domain.like.LikeCount
-import com.loopers.domain.like.LikeTargetType.PRODUCT
+import com.loopers.domain.like.LikeableType.PRODUCT
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductSortType.LIKES_DESC
 import com.loopers.domain.product.ProductStatus.SALE

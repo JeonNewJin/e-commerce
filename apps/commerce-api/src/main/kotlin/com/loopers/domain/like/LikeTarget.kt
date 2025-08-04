@@ -8,22 +8,18 @@ import jakarta.persistence.EnumType.STRING
 import jakarta.persistence.Enumerated
 
 @Embeddable
-data class LikeTarget private constructor(
+data class LikeTarget(
     @Column(name = "target_id")
     val id: Long,
 
     @Column(name = "target_type")
     @Enumerated(STRING)
-    val type: LikeTargetType,
+    val type: LikeableType,
 ) {
 
-    companion object {
-        operator fun invoke(id: Long, type: LikeTargetType): LikeTarget {
-            require(id > 0) {
-                throw CoreException(BAD_REQUEST, "유효하지 않은 대상 ID 입니다.")
-            }
-
-            return LikeTarget(id = id, type = type)
+    init {
+        require(id > 0) {
+            throw CoreException(BAD_REQUEST, "유효하지 않은 대상 ID 입니다.")
         }
     }
 }

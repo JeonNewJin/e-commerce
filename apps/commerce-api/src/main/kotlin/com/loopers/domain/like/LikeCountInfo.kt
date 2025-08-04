@@ -1,6 +1,6 @@
 package com.loopers.domain.like
 
-data class LikeCountInfo(val targetType: LikeTargetType, val targetId: Long, val count: Long) {
+data class LikeCountInfo(val targetType: LikeableType, val targetId: Long, val count: Long) {
     companion object {
         fun from(likeCount: LikeCount): LikeCountInfo =
             LikeCountInfo(

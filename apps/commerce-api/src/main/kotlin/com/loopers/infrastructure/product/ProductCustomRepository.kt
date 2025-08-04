@@ -1,6 +1,6 @@
 package com.loopers.infrastructure.product
 
-import com.loopers.domain.like.LikeTargetType.PRODUCT
+import com.loopers.domain.like.LikeableType.PRODUCT
 import com.loopers.domain.like.QLikeCount.likeCount
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductCommand

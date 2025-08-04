@@ -21,7 +21,7 @@ class PointV1Dto private constructor() {
             fun toInput(loginId: String) =
                 PointWalletInput.Charge(
                     loginId = loginId,
-                    amount = Point(amount),
+                    amount = Point.of(amount),
                 )
         }
     }

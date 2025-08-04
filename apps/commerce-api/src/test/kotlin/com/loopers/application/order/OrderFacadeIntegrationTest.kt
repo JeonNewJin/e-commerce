@@ -44,7 +44,7 @@ class OrderFacadeIntegrationTest(
 
         val pointWallet = PointWallet(
             userId = user.id,
-            balance = Point(50_000L),
+            balance = Point.of(50_000L),
         )
         pointWalletJpaRepository.save(pointWallet)
 

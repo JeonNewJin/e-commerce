@@ -17,23 +17,16 @@ import jakarta.persistence.UniqueConstraint
         ),
     ],
 )
-class Like(userId: Long, target: LikeTarget) : BaseEntity() {
+class Like(userId: Long, targetId: Long, targetType: LikeableType) : BaseEntity() {
 
     val userId: Long = userId
 
     @Embedded
-    val target: LikeTarget = target
+    val target: LikeTarget = LikeTarget(id = targetId, type = targetType)
 
-    companion object {
-        operator fun invoke(userId: Long, targetId: Long, targetType: LikeTargetType): Like {
-            require(userId > 0) {
-                throw CoreException(BAD_REQUEST, "유효하지 않은 사용자 ID 입니다.")
-            }
-
-            return Like(
-                userId = userId,
-                target = LikeTarget(id = targetId, type = targetType),
-            )
+    init {
+        require(userId > 0) {
+            throw CoreException(BAD_REQUEST, "유효하지 않은 사용자 ID 입니다.")
         }
     }
 }
