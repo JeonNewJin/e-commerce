@@ -16,7 +16,7 @@ interface PointV1ApiSpec {
         summary = "포인트 정보 조회",
         description = "포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환합니다.",
     )
-    fun myPoints(
+    fun getPoint(
         @Parameter(
             name = "X-USER-ID",
             description = "회원가입 때 가입한 ID 입니다.",
@@ -30,7 +30,7 @@ interface PointV1ApiSpec {
         summary = "포인트 충전",
         description = "포인트를 충전에 성공할 경우, 충전된 보유 총량을 응답으로 반환합니다.",
     )
-    fun chargePoints(
+    fun chargePoint(
         @Parameter(
             name = "X-USER-ID",
             description = "회원가입 때 가입한 ID 입니다.",

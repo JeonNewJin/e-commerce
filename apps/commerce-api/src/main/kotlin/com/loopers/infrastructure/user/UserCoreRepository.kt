@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.user
 
+import com.loopers.domain.user.LoginId
 import com.loopers.domain.user.User
 import com.loopers.domain.user.UserRepository
 import org.springframework.stereotype.Component
@@ -11,5 +12,5 @@ class UserCoreRepository(private val userJpaRepository: UserJpaRepository) : Use
         userJpaRepository.save(user)
     }
 
-    override fun find(userId: String): User? = userJpaRepository.findByUserId(userId)
+    override fun findByLoginId(loginId: LoginId): User? = userJpaRepository.findByLoginId(loginId)
 }

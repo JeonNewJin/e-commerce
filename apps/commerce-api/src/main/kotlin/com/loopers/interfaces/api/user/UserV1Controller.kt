@@ -18,16 +18,16 @@ class UserV1Controller(private val userFacade: UserFacade) : UserV1ApiSpec {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    override fun signup(
-        @Valid @RequestBody request: UserV1Dto.Request.Signup,
-    ): ApiResponse<UserV1Dto.Response.UserResponse> = userFacade.signup(request.toCommand())
+    override fun signUp(
+        @Valid @RequestBody request: UserV1Dto.Request.SignUp,
+    ): ApiResponse<UserV1Dto.Response.UserResponse> = userFacade.signUp(request.toInput())
         .let { UserV1Dto.Response.UserResponse.from(it) }
         .let { ApiResponse.success(it) }
 
     @GetMapping("/me")
     override fun me(
         @RequestHeader("X-USER-ID", required = true) userId: String,
-    ): ApiResponse<UserV1Dto.Response.UserResponse> = userFacade.me(userId)
+    ): ApiResponse<UserV1Dto.Response.UserResponse> = userFacade.getUser(userId)
         .let { UserV1Dto.Response.UserResponse.from(it) }
         .let { ApiResponse.success(it) }
 }

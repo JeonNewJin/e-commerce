@@ -1,12 +1,8 @@
 package com.loopers.domain.user
 
-class UserCommand {
+import kotlin.String
 
-    data class Create(val userId: String, val email: String, val birthdate: String, val gender: Gender) {
-        init {
-            require(userId.isNotBlank()) { "User ID cannot be blank." }
-            require(email.isNotBlank()) { "Email cannot be blank." }
-            require(birthdate.isNotBlank()) { "Birthdate cannot be blank." }
-        }
-    }
+class UserCommand private constructor() {
+
+    data class Register(val loginId: String, val email: String, val birthdate: kotlin.String, val gender: Gender)
 }

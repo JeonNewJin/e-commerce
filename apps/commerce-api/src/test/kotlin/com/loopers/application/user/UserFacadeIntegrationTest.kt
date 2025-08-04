@@ -1,78 +1,98 @@
 package com.loopers.application.user
 
-import com.loopers.domain.user.Gender.M
+import com.loopers.domain.point.PointWalletRepository
+import com.loopers.domain.user.Gender.MALE
 import com.loopers.domain.user.User
-import com.loopers.domain.user.UserCommand
 import com.loopers.domain.user.UserRepository
+import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.CONFLICT
 import com.loopers.support.error.ErrorType.NOT_FOUND
-import com.loopers.utils.DatabaseCleanUp
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
+import java.math.BigDecimal
 
-@SpringBootTest
-class UserFacadeIntegrationTest @Autowired constructor(
+class UserFacadeIntegrationTest(
     private val userRepository: UserRepository,
     private val userFacade: UserFacade,
-    private val databaseCleanUp: DatabaseCleanUp,
-) {
+    private val pointWalletRepository: PointWalletRepository,
+) : IntegrationTestSupport() {
 
-    @AfterEach
-    fun tearDown() {
-        databaseCleanUp.truncateAllTables()
-    }
+    @Nested
+    inner class `회원가입을 할 때, ` {
 
-    @Test
-    fun `회원가입을 할 때,  이미 가입된 ID로 회원가입을 시도하면, CONFLICT 예외가 발생한다`() {
-        // given
-        val userId = "wjsyuwls"
-        val email = "wjsyuwls@gmail.com"
-        val birthdate = "2000-01-01"
-        val gender = M
+        @Test
+        fun `이미 가입된 ID로 회원가입을 시도하면, CONFLICT 예외가 발생한다`() {
+            // Given
+            userRepository.save(
+                User(
+                    loginId = "wjsyuwls",
+                    email = "wjsyuwls@gmail.com",
+                    birthdate = "2000-01-01",
+                    gender = MALE,
+                ),
+            )
 
-        userRepository.save(
-            User(
-                userId = userId,
-                email = email,
-                birthdate = birthdate,
-                gender = gender,
-            ),
-        )
+            val input = UserInput.Register(
+                loginId = "wjsyuwls",
+                email = "wjsyuwls@gmail.com",
+                birthdate = "2000-01-01",
+                gender = MALE,
+            )
 
-        val command = UserCommand.Create(userId, email, birthdate, gender)
+            // When
+            val actual = assertThrows<CoreException> {
+                userFacade.signUp(input)
+            }
 
-        // when
-        val result = assertThrows<CoreException> {
-            userFacade.signup(command)
+            // Then
+            assertAll(
+                { assertThat(actual.errorType).isEqualTo(CONFLICT) },
+                { assertThat(actual.message).isEqualTo("동일한 ID로 이미 가입된 계정이 존재합니다.") },
+            )
         }
 
-        // then
-        assertAll(
-            { assertThat(result.errorType).isEqualTo(CONFLICT) },
-            { assertThat(result.message).isEqualTo("동일한 ID로 이미 가입된 계정이 존재합니다.") },
-        )
+        @Test
+        fun `회원가입에 성공하면, 포인트 지갑이 생성된다`() {
+            // Given
+            val input = UserInput.Register(
+                loginId = "wjsyuwls",
+                email = "wjsyuwls@gmail.com",
+                birthdate = "2000-01-01",
+                gender = MALE,
+            )
+
+            // When
+            userFacade.signUp(input)
+
+            // Then
+            val actual = pointWalletRepository.findByUserId(1L)
+
+            assertAll(
+                { assertThat(actual).isNotNull },
+                { assertThat(actual?.userId).isEqualTo(1L) },
+                { assertThat(actual?.balance?.value).isEqualTo(BigDecimal("0.00")) },
+            )
+        }
     }
 
     @Test
     fun `사용자 정보를 조회할 때, 존재하지 않는 사용자 ID로 조회하면, NOT_FOUND 예외가 발생한다`() {
-        // given
-        val userId = "wjsyuwls"
+        // Given
+        val userId = "notfound"
 
-        // when
-        val result = assertThrows<CoreException> {
-            userFacade.me(userId)
+        // When
+        val actual = assertThrows<CoreException> {
+            userFacade.getUser(userId)
         }
 
-        // then
+        // Then
         assertAll(
-            { assertThat(result.errorType).isEqualTo(NOT_FOUND) },
-            { assertThat(result.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
+            { assertThat(actual.errorType).isEqualTo(NOT_FOUND) },
+            { assertThat(actual.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
         )
     }
 }

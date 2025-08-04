@@ -1,29 +1,40 @@
 package com.loopers.domain.point
 
-import com.loopers.domain.BaseEntity
+import com.loopers.support.error.CoreException
+import com.loopers.support.error.ErrorType.BAD_REQUEST
 import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
+import jakarta.persistence.Embeddable
 import java.math.BigDecimal
 
-@Entity
-@Table(name = "point")
-class Point(userId: String, balance: BigDecimal = BigDecimal.ZERO) : BaseEntity() {
+@Embeddable
+data class Point private constructor(
+    @Column(name = "point")
+    val value: BigDecimal,
+) : Comparable<Point> {
 
-    @Column(name = "user_id", nullable = false)
-    val userId: String = userId
+    companion object {
+        val ZERO: Point = Point(BigDecimal.ZERO)
 
-    @Column(name = "balance", nullable = false)
-    var balance: BigDecimal = balance
-        private set
+        operator fun invoke(value: Number): Point {
+            val decimal = when (value) {
+                is BigDecimal -> value
+                is Long, is Int -> BigDecimal.valueOf(value.toLong())
+                is Double, is Float -> BigDecimal.valueOf(value.toDouble())
+                else -> throw CoreException(BAD_REQUEST, "지원하지 않는 숫자 타입입니다.")
+            }
 
-    init {
-        require(balance >= BigDecimal.ZERO) { "잔액은 0보다 작을 수 없습니다." }
+            require(decimal >= BigDecimal.ZERO) {
+                throw CoreException(BAD_REQUEST, "포인트는 0 이상이어야 합니다.")
+            }
+
+            return Point(decimal)
+        }
     }
 
-    fun charge(amount: BigDecimal) {
-        require(amount > BigDecimal.ZERO) { "0 이하의 정수로 포인트를 충전할 수 없습니다." }
+    fun isNotZero(): Boolean = this.value != BigDecimal.ZERO
 
-        balance += amount
-    }
+    fun plus(other: Point): Point = Point(this.value + other.value)
+    fun minus(other: Point): Point = Point(this.value - other.value)
+
+    override operator fun compareTo(other: Point): Int = this.value.compareTo(other.value)
 }
