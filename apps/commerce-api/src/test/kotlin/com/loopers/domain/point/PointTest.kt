@@ -1,5 +1,6 @@
 package com.loopers.domain.point
 
+import com.loopers.domain.point.vo.Point
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import org.assertj.core.api.Assertions.assertThat

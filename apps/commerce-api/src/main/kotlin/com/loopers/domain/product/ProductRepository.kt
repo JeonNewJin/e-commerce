@@ -1,12 +1,13 @@
 package com.loopers.domain.product
 
+import com.loopers.domain.product.entity.Product
 import org.springframework.data.domain.Page
 
 interface ProductRepository {
 
     fun findById(productId: Long): Product?
 
-    fun findProducts(command: ProductCommand.GetProducts): Page<Product>
+    fun findProductsOnSale(command: ProductCommand.FindProductsOnSale): Page<Product>
 
-    fun findByIds(productIds: List<Long>): List<Product>
+    fun findAllByIds(productIds: List<Long>): List<Product>
 }

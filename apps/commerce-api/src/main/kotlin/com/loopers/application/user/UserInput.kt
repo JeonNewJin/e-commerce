@@ -1,6 +1,6 @@
 package com.loopers.application.user
 
-import com.loopers.domain.user.Gender
+import com.loopers.domain.user.model.Gender
 import com.loopers.domain.user.UserCommand
 
 class UserInput private constructor() {

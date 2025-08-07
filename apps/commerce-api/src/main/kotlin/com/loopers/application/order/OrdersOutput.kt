@@ -1,6 +1,6 @@
 package com.loopers.application.order
 
-import com.loopers.domain.order.OrderInfo
+import com.loopers.domain.order.model.OrderInfo
 import org.springframework.data.domain.Page
 
 data class OrdersOutput(

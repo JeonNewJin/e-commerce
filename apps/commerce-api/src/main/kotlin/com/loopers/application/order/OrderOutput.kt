@@ -1,6 +1,6 @@
 package com.loopers.application.order
 
-import com.loopers.domain.order.OrderInfo
+import com.loopers.domain.order.model.OrderInfo
 
 data class OrderOutput(
     val id: Long,

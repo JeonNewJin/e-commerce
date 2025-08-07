@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.user
 
-import com.loopers.domain.user.Gender.MALE
+import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.interfaces.api.ApiResponse
 import com.loopers.support.E2ETestSupport
 import org.assertj.core.api.Assertions.assertThat

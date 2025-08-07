@@ -1,10 +1,10 @@
 package com.loopers.application.point
 
-import com.loopers.domain.point.Point
-import com.loopers.domain.point.PointWallet
+import com.loopers.domain.point.vo.Point
+import com.loopers.domain.point.entity.PointWallet
 import com.loopers.domain.point.PointWalletRepository
-import com.loopers.domain.user.Gender.MALE
-import com.loopers.domain.user.User
+import com.loopers.domain.user.model.Gender.MALE
+import com.loopers.domain.user.entity.User
 import com.loopers.domain.user.UserRepository
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException

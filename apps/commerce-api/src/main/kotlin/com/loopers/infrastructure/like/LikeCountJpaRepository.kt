@@ -1,8 +1,8 @@
 package com.loopers.infrastructure.like
 
-import com.loopers.domain.like.LikeCount
-import com.loopers.domain.like.LikeTarget
-import com.loopers.domain.like.LikeableType
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeableType
+import com.loopers.domain.like.vo.LikeTarget
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 

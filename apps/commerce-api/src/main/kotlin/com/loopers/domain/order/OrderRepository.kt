@@ -1,5 +1,6 @@
 package com.loopers.domain.order
 
+import com.loopers.domain.order.entity.Order
 import org.springframework.data.domain.Page
 
 interface OrderRepository {

@@ -1,6 +1,7 @@
 package com.loopers.domain.user
 
-import com.loopers.domain.user.Gender.MALE
+import com.loopers.domain.user.model.Gender.MALE
+import com.loopers.domain.user.entity.User
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

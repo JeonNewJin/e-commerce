@@ -1,7 +1,7 @@
 package com.loopers.application.like
 
 import com.loopers.domain.like.LikeCommand
-import com.loopers.domain.like.LikeableType
+import com.loopers.domain.like.model.LikeableType
 import org.springframework.data.domain.Pageable
 
 class LikeInput private constructor() {
@@ -24,9 +24,9 @@ class LikeInput private constructor() {
             )
     }
 
-    data class GetLikes(val loginId: String, val targetType: LikeableType, val pageable: Pageable) {
-        fun toCommand(userId: Long): LikeCommand.GetLikes =
-            LikeCommand.GetLikes(
+    data class FindLikes(val loginId: String, val targetType: LikeableType, val pageable: Pageable) {
+        fun toCommand(userId: Long): LikeCommand.FindLikes =
+            LikeCommand.FindLikes(
                 userId = userId,
                 targetType = targetType,
                 pageable = pageable,

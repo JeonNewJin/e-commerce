@@ -1,10 +1,10 @@
 package com.loopers.interfaces.api.point
 
-import com.loopers.domain.point.Point
-import com.loopers.domain.point.PointWallet
+import com.loopers.domain.point.vo.Point
+import com.loopers.domain.point.entity.PointWallet
 import com.loopers.domain.point.PointWalletRepository
-import com.loopers.domain.user.Gender.MALE
-import com.loopers.domain.user.User
+import com.loopers.domain.user.model.Gender.MALE
+import com.loopers.domain.user.entity.User
 import com.loopers.domain.user.UserRepository
 import com.loopers.interfaces.api.ApiResponse
 import com.loopers.support.E2ETestSupport

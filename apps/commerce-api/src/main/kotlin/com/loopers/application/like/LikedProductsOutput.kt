@@ -1,10 +1,9 @@
 package com.loopers.application.like
 
 import com.loopers.application.product.ProductOutput
-import com.loopers.domain.brand.BrandInfo
-import com.loopers.domain.like.LikeCountInfo
-import com.loopers.domain.like.LikeInfo
-import com.loopers.domain.product.ProductInfo
+import com.loopers.domain.brand.model.BrandInfo
+import com.loopers.domain.like.model.LikeInfo
+import com.loopers.domain.product.model.ProductInfo
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.NOT_FOUND
 import org.springframework.data.domain.Page
@@ -24,17 +23,14 @@ data class LikedProductsOutput(
             likes: Page<LikeInfo>,
             products: List<ProductInfo>,
             brands: List<BrandInfo>,
-            likeCounts: List<LikeCountInfo>,
         ): LikedProductsOutput {
             val productMap = products.associateBy { it.id }
             val brandMap = brands.associateBy { it.id }
-            val likeCountMap = likeCounts.associateBy { it.targetId }
+            val likeCountMap = likes.associateBy { it.targetId }
 
             val productItems = likes.content.map { like ->
-                val product = productMap[like.targetId]
-                    ?: throw CoreException(NOT_FOUND, "해당 상품을 찾을 수 없습니다.")
-                val brand = brandMap[product.brandId]
-                    ?: throw CoreException(NOT_FOUND, "해당 브랜드를 찾을 수 없습니다.")
+                val product = productMap[like.targetId] ?: throw CoreException(NOT_FOUND, "해당 상품을 찾을 수 없습니다.")
+                val brand = brandMap[product.brandId] ?: throw CoreException(NOT_FOUND, "해당 브랜드를 찾을 수 없습니다.")
                 val likeCount = likeCountMap[product.id]?.count ?: 0L
 
                 ProductOutput(

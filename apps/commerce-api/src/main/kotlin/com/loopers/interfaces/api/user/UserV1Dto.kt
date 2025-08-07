@@ -2,7 +2,8 @@ package com.loopers.interfaces.api.user
 
 import com.loopers.application.user.UserInput
 import com.loopers.application.user.UserOutput
-import com.loopers.domain.user.Gender
+import com.loopers.domain.user.model.Gender
+import com.loopers.domain.user.model.UserInfo
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotNull
@@ -49,6 +50,14 @@ class UserV1Dto private constructor() {
                         email = output.email,
                         birthdate = output.birthdate,
                         gender = output.gender,
+                    )
+
+                fun from(info: UserInfo): UserResponse =
+                    UserResponse(
+                        userId = info.loginId,
+                        email = info.email,
+                        birthdate = info.birthdate,
+                        gender = info.gender,
                     )
             }
         }

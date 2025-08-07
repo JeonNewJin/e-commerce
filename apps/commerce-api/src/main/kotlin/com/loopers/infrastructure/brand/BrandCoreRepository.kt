@@ -1,6 +1,6 @@
 package com.loopers.infrastructure.brand
 
-import com.loopers.domain.brand.Brand
+import com.loopers.domain.brand.entity.Brand
 import com.loopers.domain.brand.BrandRepository
 import org.springframework.stereotype.Component
 

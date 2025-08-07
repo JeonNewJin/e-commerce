@@ -1,7 +1,11 @@
 package com.loopers.domain.like
 
-import com.loopers.support.error.CoreException
-import com.loopers.support.error.ErrorType.NOT_FOUND
+import com.loopers.domain.like.entity.Like
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeCountInfo
+import com.loopers.domain.like.model.LikeInfo
+import com.loopers.domain.like.model.LikeableType
+import com.loopers.domain.like.vo.LikeTarget
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Service
@@ -55,13 +59,17 @@ class LikeService(private val likeRepository: LikeRepository) {
         likeRepository.saveLikeCount(likeCount)
     }
 
+    fun findLikes(command: LikeCommand.FindLikes): Page<LikeInfo> =
+        likeRepository.findLikes(command)
+            .map { LikeInfo.from(it) }
+
     fun getLikeCount(
         targetType: LikeableType,
         targetId: Long,
     ): LikeCountInfo =
         likeRepository.findLikeCountByTarget(LikeTarget(targetId, targetType))
             ?.let { LikeCountInfo.from(it) }
-            ?: throw CoreException(NOT_FOUND, "좋아요 카운트를 찾을 수 없습니다.")
+            ?: LikeCountInfo.empty(targetType, targetId)
 
     fun findLikeCounts(
         targetType: LikeableType,
@@ -69,8 +77,4 @@ class LikeService(private val likeRepository: LikeRepository) {
     ): List<LikeCountInfo> =
         likeRepository.findLikeCounts(targetType, targetIds)
             .map { LikeCountInfo.from(it) }
-
-    fun findLikes(command: LikeCommand.GetLikes): Page<LikeInfo> =
-        likeRepository.findLikes(command)
-            .map { LikeInfo.from(it) }
 }

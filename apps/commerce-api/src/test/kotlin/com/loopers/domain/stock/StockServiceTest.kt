@@ -1,8 +1,8 @@
 package com.loopers.domain.stock
 
+import com.loopers.domain.stock.entity.Stock
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException
-import com.loopers.support.error.ErrorType.CONFLICT
 import com.loopers.support.error.ErrorType.NOT_FOUND
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -65,30 +65,5 @@ class StockServiceTest(
 
             assertThat(actual.quantity).isEqualTo(7)
         }
-    }
-
-    @Test
-    fun `재고 차감 가능 여부를 확인할 때, 주문 수량보다 재고가 부족하면, CONFLICT 예외가 발생된다`() {
-        // Given
-        val productId = 1L
-        val initialQuantity = 5
-        val orderQuantity = 10
-
-        val stock = Stock(
-            productId = productId,
-            quantity = initialQuantity,
-        )
-        stockRepository.save(stock)
-
-        // When
-        val actual = assertThrows<CoreException> {
-            stockService.checkAvailability(productId, orderQuantity)
-        }
-
-        // Then
-        assertAll(
-            { assertThat(actual.errorType).isEqualTo(CONFLICT) },
-            { assertThat(actual.message).contains("재고가 부족합니다. 현재 재고: $initialQuantity, 요청 수량: $orderQuantity") },
-        )
     }
 }

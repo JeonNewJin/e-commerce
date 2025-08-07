@@ -1,6 +1,6 @@
 package com.loopers.infrastructure.product
 
-import com.loopers.domain.product.Product
+import com.loopers.domain.product.entity.Product
 import com.loopers.domain.product.ProductCommand
 import com.loopers.domain.product.ProductRepository
 import org.springframework.data.domain.Page
@@ -14,10 +14,10 @@ class ProductCoreRepository(
 
     override fun findById(productId: Long): Product? = productJpaRepository.findById(productId).orElse(null)
 
-    override fun findProducts(command: ProductCommand.GetProducts): Page<Product> =
-        customRepository.findProducts(command)
+    override fun findProductsOnSale(command: ProductCommand.FindProductsOnSale): Page<Product> =
+        customRepository.findProductsOnSale(command)
 
-    override fun findByIds(productIds: List<Long>): List<Product> {
+    override fun findAllByIds(productIds: List<Long>): List<Product> {
         if (productIds.isEmpty()) {
             return emptyList()
         }

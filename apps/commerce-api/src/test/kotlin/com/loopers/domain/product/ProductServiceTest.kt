@@ -1,7 +1,8 @@
 package com.loopers.domain.product
 
-import com.loopers.domain.product.ProductSortType.PRICE_ASC
-import com.loopers.domain.product.ProductStatus.SALE
+import com.loopers.domain.product.model.ProductSortType.PRICE_ASC
+import com.loopers.domain.product.model.ProductStatus.SALE
+import com.loopers.domain.product.entity.Product
 import com.loopers.infrastructure.product.ProductJpaRepository
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException
@@ -22,7 +23,7 @@ class ProductServiceTest(
 ) : IntegrationTestSupport() {
 
     @Nested
-    inner class `상품 정보를 조회할 때, ` {
+    inner class `판매중인 상품 정보를 조회할 때, ` {
 
         @Test
         fun `존재하지 않는 상품 ID로 조회하면, BAD_REQUEST 예외가 발생한다`() {
@@ -31,7 +32,7 @@ class ProductServiceTest(
 
             // When
             val actual = assertThrows<CoreException> {
-                productService.getProduct(nonExistentProductId)
+                productService.getProductOnSale(nonExistentProductId)
             }
 
             // Then
@@ -48,7 +49,7 @@ class ProductServiceTest(
             productJpaRepository.save(product)
 
             // When
-            val actual = productService.getProduct(product.id)
+            val actual = productService.getProductOnSale(product.id)
 
             // Then
             assertAll(
@@ -80,10 +81,10 @@ class ProductServiceTest(
             }
             productJpaRepository.saveAll(products)
 
-            val command = ProductCommand.GetProducts(pageable = Pageable.ofSize(10))
+            val command = ProductCommand.FindProductsOnSale(pageable = Pageable.ofSize(10))
 
             // When
-            val actual = productService.findProducts(command)
+            val actual = productService.findProductsOnSale(command)
 
             // Then
             assertAll(
@@ -120,13 +121,13 @@ class ProductServiceTest(
             }
             productJpaRepository.saveAll(products)
 
-            val command = ProductCommand.GetProducts(
+            val command = ProductCommand.FindProductsOnSale(
                 sortType = PRICE_ASC,
                 pageable = Pageable.ofSize(10),
             )
 
             // When
-            val actual = productService.findProducts(command)
+            val actual = productService.findProductsOnSale(command)
 
             // Then
             assertAll(

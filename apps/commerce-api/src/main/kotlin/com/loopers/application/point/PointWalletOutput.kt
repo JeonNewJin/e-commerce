@@ -1,6 +1,6 @@
 package com.loopers.application.point
 
-import com.loopers.domain.point.PointWalletInfo
+import com.loopers.domain.point.model.PointWalletInfo
 import java.math.BigDecimal
 
 data class PointWalletOutput(val userId: Long, val balance: BigDecimal) {

@@ -1,7 +1,7 @@
 package com.loopers.application.user
 
-import com.loopers.domain.user.Gender
-import com.loopers.domain.user.UserInfo
+import com.loopers.domain.user.model.Gender
+import com.loopers.domain.user.model.UserInfo
 
 data class UserOutput(val loginId: String, val email: String, val birthdate: String, val gender: Gender) {
     companion object {

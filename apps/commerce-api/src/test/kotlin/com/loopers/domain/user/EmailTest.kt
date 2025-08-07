@@ -1,5 +1,6 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.vo.Email
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import org.assertj.core.api.Assertions.assertThat

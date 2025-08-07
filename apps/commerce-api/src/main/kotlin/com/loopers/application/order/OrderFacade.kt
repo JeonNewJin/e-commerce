@@ -1,15 +1,15 @@
 package com.loopers.application.order
 
 import com.loopers.domain.order.OrderCommand
-import com.loopers.domain.order.OrderLine
+import com.loopers.domain.order.entity.OrderLine
 import com.loopers.domain.order.OrderService
-import com.loopers.domain.point.Point
+import com.loopers.domain.point.vo.Point
 import com.loopers.domain.point.PointWalletCommand
 import com.loopers.domain.point.PointWalletService
 import com.loopers.domain.product.ProductService
 import com.loopers.domain.stock.StockCommand
 import com.loopers.domain.stock.StockService
-import com.loopers.domain.user.LoginId
+import com.loopers.domain.user.vo.LoginId
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -28,8 +28,7 @@ class OrderFacade(
         val user = userService.getUser(LoginId(input.loginId))
 
         val orderLines = input.orderItems.map {
-            val product = productService.getProduct(it.productId)
-            stockService.checkAvailability(product.id, it.quantity)
+            val product = productService.getProductOnSale(it.productId)
 
             OrderLine(
                 productId = product.id,
@@ -44,12 +43,12 @@ class OrderFacade(
         val command = PointWalletCommand.Use(userId = user.id, amount = Point.of(order.totalPrice))
         pointWalletService.use(command)
 
+        orderService.completePayment(order.id)
+
         orderLines.forEach { orderLine ->
             val stockCommand = StockCommand.Deduct(productId = orderLine.productId, quantity = orderLine.quantity)
             stockService.deduct(stockCommand)
         }
-
-        orderService.completePayment(order.id)
     }
 
     @Transactional(readOnly = true)

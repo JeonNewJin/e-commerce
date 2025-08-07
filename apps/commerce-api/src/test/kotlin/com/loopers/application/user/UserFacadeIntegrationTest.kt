@@ -1,13 +1,12 @@
 package com.loopers.application.user
 
 import com.loopers.domain.point.PointWalletRepository
-import com.loopers.domain.user.Gender.MALE
-import com.loopers.domain.user.User
 import com.loopers.domain.user.UserRepository
+import com.loopers.domain.user.entity.User
+import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.CONFLICT
-import com.loopers.support.error.ErrorType.NOT_FOUND
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -77,22 +76,5 @@ class UserFacadeIntegrationTest(
                 { assertThat(actual?.balance?.value).isEqualTo(BigDecimal("0.00")) },
             )
         }
-    }
-
-    @Test
-    fun `사용자 정보를 조회할 때, 존재하지 않는 사용자 ID로 조회하면, NOT_FOUND 예외가 발생한다`() {
-        // Given
-        val userId = "notfound"
-
-        // When
-        val actual = assertThrows<CoreException> {
-            userFacade.getUser(userId)
-        }
-
-        // Then
-        assertAll(
-            { assertThat(actual.errorType).isEqualTo(NOT_FOUND) },
-            { assertThat(actual.message).isEqualTo("해당 사용자를 찾을 수 없습니다.") },
-        )
     }
 }

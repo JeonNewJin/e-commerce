@@ -1,6 +1,6 @@
 package com.loopers.application.point
 
-import com.loopers.domain.point.Point
+import com.loopers.domain.point.vo.Point
 import com.loopers.domain.point.PointWalletCommand
 
 class PointWalletInput private constructor() {

@@ -1,5 +1,6 @@
 package com.loopers.domain.stock
 
+import com.loopers.domain.stock.entity.Stock
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import com.loopers.support.error.ErrorType.CONFLICT

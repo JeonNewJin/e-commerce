@@ -1,7 +1,7 @@
 package com.loopers.infrastructure.like
 
-import com.loopers.domain.like.Like
-import com.loopers.domain.like.LikeTarget
+import com.loopers.domain.like.entity.Like
+import com.loopers.domain.like.vo.LikeTarget
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface LikeJpaRepository : JpaRepository<Like, Long> {

@@ -1,14 +1,14 @@
 package com.loopers.application.like
 
-import com.loopers.domain.brand.Brand
-import com.loopers.domain.like.Like
-import com.loopers.domain.like.LikeCount
-import com.loopers.domain.like.LikeTarget
-import com.loopers.domain.like.LikeableType.PRODUCT
-import com.loopers.domain.product.Product
-import com.loopers.domain.product.ProductStatus.SALE
-import com.loopers.domain.user.Gender.MALE
-import com.loopers.domain.user.User
+import com.loopers.domain.brand.entity.Brand
+import com.loopers.domain.like.entity.Like
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeableType.PRODUCT
+import com.loopers.domain.like.vo.LikeTarget
+import com.loopers.domain.product.entity.Product
+import com.loopers.domain.product.model.ProductStatus.SALE
+import com.loopers.domain.user.entity.User
+import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.infrastructure.brand.BrandJpaRepository
 import com.loopers.infrastructure.like.LikeCountJpaRepository
 import com.loopers.infrastructure.like.LikeJpaRepository
@@ -149,7 +149,7 @@ class LikeFacadeIntegrationTest(
         }
         likeCountJpaRepository.saveAll(likeCounts)
 
-        val input = LikeInput.GetLikes(
+        val input = LikeInput.FindLikes(
             loginId = "wjsyuwls",
             targetType = PRODUCT,
             pageable = Pageable.ofSize(10),

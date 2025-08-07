@@ -1,5 +1,6 @@
 package com.loopers.domain.order
 
+import com.loopers.domain.order.entity.OrderLine
 import org.springframework.data.domain.Pageable
 
 class OrderCommand private constructor() {

@@ -1,13 +1,13 @@
 package com.loopers.application.order
 
-import com.loopers.domain.brand.Brand
-import com.loopers.domain.point.Point
-import com.loopers.domain.point.PointWallet
-import com.loopers.domain.product.Product
-import com.loopers.domain.product.ProductStatus.SALE
-import com.loopers.domain.stock.Stock
-import com.loopers.domain.user.Gender.MALE
-import com.loopers.domain.user.User
+import com.loopers.domain.brand.entity.Brand
+import com.loopers.domain.point.vo.Point
+import com.loopers.domain.point.entity.PointWallet
+import com.loopers.domain.product.entity.Product
+import com.loopers.domain.product.model.ProductStatus.SALE
+import com.loopers.domain.stock.entity.Stock
+import com.loopers.domain.user.model.Gender.MALE
+import com.loopers.domain.user.entity.User
 import com.loopers.infrastructure.brand.BrandJpaRepository
 import com.loopers.infrastructure.order.OrderJpaRepository
 import com.loopers.infrastructure.point.PointWalletJpaRepository

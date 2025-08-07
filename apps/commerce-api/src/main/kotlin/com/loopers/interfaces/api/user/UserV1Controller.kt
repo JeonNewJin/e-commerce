@@ -1,6 +1,8 @@
 package com.loopers.interfaces.api.user
 
 import com.loopers.application.user.UserFacade
+import com.loopers.domain.user.UserService
+import com.loopers.domain.user.vo.LoginId
 import com.loopers.interfaces.api.ApiResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus.CREATED
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserV1Controller(private val userFacade: UserFacade) : UserV1ApiSpec {
+class UserV1Controller(private val userFacade: UserFacade, private val userService: UserService) : UserV1ApiSpec {
 
     @PostMapping
     @ResponseStatus(CREATED)
@@ -27,7 +29,7 @@ class UserV1Controller(private val userFacade: UserFacade) : UserV1ApiSpec {
     @GetMapping("/me")
     override fun me(
         @RequestHeader("X-USER-ID", required = true) userId: String,
-    ): ApiResponse<UserV1Dto.Response.UserResponse> = userFacade.getUser(userId)
+    ): ApiResponse<UserV1Dto.Response.UserResponse> = userService.getUser(LoginId(userId))
         .let { UserV1Dto.Response.UserResponse.from(it) }
         .let { ApiResponse.success(it) }
 }

@@ -1,7 +1,6 @@
 package com.loopers.application.user
 
 import com.loopers.domain.point.PointWalletService
-import com.loopers.domain.user.LoginId
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -17,9 +16,4 @@ class UserFacade(private val userService: UserService, private val pointWalletSe
 
         return UserOutput.from(user)
     }
-
-    @Transactional(readOnly = true)
-    fun getUser(loginId: kotlin.String): UserOutput =
-        userService.getUser(LoginId(loginId))
-            .let { UserOutput.from(it) }
 }

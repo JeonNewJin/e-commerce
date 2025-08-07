@@ -1,6 +1,6 @@
 package com.loopers.application.order
 
-import com.loopers.domain.order.OrderLineInfo
+import com.loopers.domain.order.model.OrderLineInfo
 import java.math.BigDecimal
 
 class OrderLineOutput(val productId: Long, val quantity: Int, val unitPrice: BigDecimal) {

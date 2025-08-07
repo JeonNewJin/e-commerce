@@ -3,7 +3,7 @@ package com.loopers.application.like
 import com.loopers.domain.brand.BrandService
 import com.loopers.domain.like.LikeService
 import com.loopers.domain.product.ProductService
-import com.loopers.domain.user.LoginId
+import com.loopers.domain.user.vo.LoginId
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -31,12 +31,11 @@ class LikeFacade(
     }
 
     @Transactional(readOnly = true)
-    fun getLikedProducts(input: LikeInput.GetLikes): LikedProductsOutput {
+    fun getLikedProducts(input: LikeInput.FindLikes): LikedProductsOutput {
         val user = userService.getUser(LoginId(input.loginId))
         val likes = likeService.findLikes(input.toCommand(user.id))
-        val products = productService.getProducts(likes.content.map { it.targetId }.distinct())
+        val products = productService.findProductsByIds(likes.content.map { it.targetId })
         val brands = brandService.getBrands(products.map { it.brandId }.distinct())
-        val likeCounts = likeService.findLikeCounts(input.targetType, products.map { it.id }.distinct())
-        return LikedProductsOutput.of(likes, products, brands, likeCounts)
+        return LikedProductsOutput.of(likes, products, brands)
     }
 }

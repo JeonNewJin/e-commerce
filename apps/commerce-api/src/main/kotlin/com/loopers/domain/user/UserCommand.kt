@@ -1,5 +1,6 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.model.Gender
 import kotlin.String
 
 class UserCommand private constructor() {

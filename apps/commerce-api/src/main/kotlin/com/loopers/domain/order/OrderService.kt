@@ -1,6 +1,8 @@
 package com.loopers.domain.order
 
-import com.loopers.domain.order.OrderStatus.PAYMENT_PENDING
+import com.loopers.domain.order.model.OrderStatus.PAYMENT_PENDING
+import com.loopers.domain.order.entity.Order
+import com.loopers.domain.order.model.OrderInfo
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.NOT_FOUND
 import org.springframework.data.domain.Page

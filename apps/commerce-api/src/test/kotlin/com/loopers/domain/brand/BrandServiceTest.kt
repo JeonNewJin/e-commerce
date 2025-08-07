@@ -1,5 +1,6 @@
 package com.loopers.domain.brand
 
+import com.loopers.domain.brand.entity.Brand
 import com.loopers.infrastructure.brand.BrandJpaRepository
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException

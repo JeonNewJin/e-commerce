@@ -1,7 +1,9 @@
 package com.loopers.domain.order
 
-import com.loopers.domain.order.OrderStatus.PAYMENT_COMPLETED
-import com.loopers.domain.order.OrderStatus.PAYMENT_PENDING
+import com.loopers.domain.order.model.OrderStatus.PAYMENT_COMPLETED
+import com.loopers.domain.order.model.OrderStatus.PAYMENT_PENDING
+import com.loopers.domain.order.entity.Order
+import com.loopers.domain.order.entity.OrderLine
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import org.assertj.core.api.Assertions.assertThat

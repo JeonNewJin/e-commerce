@@ -1,6 +1,8 @@
 package com.loopers.domain.user
 
-import com.loopers.domain.user.Gender.MALE
+import com.loopers.domain.user.model.Gender.MALE
+import com.loopers.domain.user.entity.User
+import com.loopers.domain.user.vo.LoginId
 import com.loopers.infrastructure.user.UserJpaRepository
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException

@@ -1,11 +1,12 @@
 package com.loopers.infrastructure.like
 
-import com.loopers.domain.like.Like
 import com.loopers.domain.like.LikeCommand
-import com.loopers.domain.like.LikeCount
 import com.loopers.domain.like.LikeRepository
-import com.loopers.domain.like.LikeTarget
-import com.loopers.domain.like.LikeableType
+import com.loopers.domain.like.entity.Like
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeWithCount
+import com.loopers.domain.like.model.LikeableType
+import com.loopers.domain.like.vo.LikeTarget
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 
@@ -25,12 +26,12 @@ class LikeCoreRepository(
         likeJpaRepository.save(like)
     }
 
-    override fun saveLikeCount(likeCount: LikeCount) {
-        likeCountJpaRepository.save(likeCount)
-    }
-
     override fun delete(like: Like) {
         likeJpaRepository.delete(like)
+    }
+
+    override fun saveLikeCount(likeCount: LikeCount) {
+        likeCountJpaRepository.save(likeCount)
     }
 
     override fun findLikeCountByTarget(likeTarget: LikeTarget): LikeCount? =
@@ -41,5 +42,5 @@ class LikeCoreRepository(
         targetIds: List<Long>,
     ): List<LikeCount> = likeCountJpaRepository.findByTargetTypeAndTargetIds(targetType, targetIds)
 
-    override fun findLikes(command: LikeCommand.GetLikes): Page<Like> = customRepository.findLikes(command)
+    override fun findLikes(command: LikeCommand.FindLikes): Page<LikeWithCount> = customRepository.findLikes(command)
 }

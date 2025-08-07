@@ -1,8 +1,8 @@
 package com.loopers.infrastructure.like
 
-import com.loopers.domain.like.LikeCount
-import com.loopers.domain.like.LikeTarget
-import com.loopers.domain.like.LikeableType.PRODUCT
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeableType.PRODUCT
+import com.loopers.domain.like.vo.LikeTarget
 import com.loopers.support.IntegrationTestSupport
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple

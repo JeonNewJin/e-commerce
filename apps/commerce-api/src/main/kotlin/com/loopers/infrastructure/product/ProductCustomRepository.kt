@@ -1,14 +1,15 @@
 package com.loopers.infrastructure.product
 
-import com.loopers.domain.like.LikeableType.PRODUCT
-import com.loopers.domain.like.QLikeCount.likeCount
-import com.loopers.domain.product.Product
+import com.loopers.domain.like.entity.QLikeCount.likeCount
+import com.loopers.domain.like.model.LikeableType.PRODUCT
 import com.loopers.domain.product.ProductCommand
-import com.loopers.domain.product.ProductSortType
-import com.loopers.domain.product.ProductSortType.LATEST
-import com.loopers.domain.product.ProductSortType.LIKES_DESC
-import com.loopers.domain.product.ProductSortType.PRICE_ASC
-import com.loopers.domain.product.QProduct.product
+import com.loopers.domain.product.entity.Product
+import com.loopers.domain.product.entity.QProduct.product
+import com.loopers.domain.product.model.ProductSortType
+import com.loopers.domain.product.model.ProductSortType.LATEST
+import com.loopers.domain.product.model.ProductSortType.LIKES_DESC
+import com.loopers.domain.product.model.ProductSortType.PRICE_ASC
+import com.loopers.domain.product.model.ProductStatus.SALE
 import com.querydsl.core.types.Order.DESC
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.Predicate
@@ -21,10 +22,13 @@ import org.springframework.stereotype.Repository
 @Repository
 class ProductCustomRepository(private val query: JPAQueryFactory) {
 
-    fun findProducts(command: ProductCommand.GetProducts): Page<Product> {
+    fun findProductsOnSale(command: ProductCommand.FindProductsOnSale): Page<Product> {
         val products = query
             .selectFrom(product)
-            .where(command.brandId?.let { product.brandId.eq(it) })
+            .where(
+                command.brandId?.let { product.brandId.eq(it) },
+                product.status.eq(SALE),
+            )
             .orderBy(getOrderBy(command.sortType))
             .offset(command.pageable.offset)
             .limit(command.pageable.pageSize.toLong())

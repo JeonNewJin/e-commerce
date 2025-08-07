@@ -1,5 +1,8 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.entity.User
+import com.loopers.domain.user.model.UserInfo
+import com.loopers.domain.user.vo.LoginId
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.CONFLICT
 import com.loopers.support.error.ErrorType.NOT_FOUND

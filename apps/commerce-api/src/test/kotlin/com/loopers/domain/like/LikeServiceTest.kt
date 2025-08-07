@@ -1,6 +1,9 @@
 package com.loopers.domain.like
 
-import com.loopers.domain.like.LikeableType.PRODUCT
+import com.loopers.domain.like.model.LikeableType.PRODUCT
+import com.loopers.domain.like.entity.Like
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.vo.LikeTarget
 import com.loopers.infrastructure.like.LikeCountJpaRepository
 import com.loopers.infrastructure.like.LikeJpaRepository
 import com.loopers.support.IntegrationTestSupport
@@ -236,7 +239,7 @@ class LikeServiceTest(
             val userId = 999L
             val targetType = PRODUCT
 
-            val command = LikeCommand.GetLikes(
+            val command = LikeCommand.FindLikes(
                 userId = userId,
                 targetType = targetType,
                 pageable = Pageable.ofSize(10),
@@ -252,16 +255,25 @@ class LikeServiceTest(
         @Test
         fun `페이지네이션을 통해 좋아요 목록을 분할하여 조회할 수 있다`() {
             // Given
-            (1..20).map { i ->
-                val like = Like(
+            val likes = (1..20).map { i ->
+                Like(
                     userId = 1L,
                     targetId = i.toLong(),
                     targetType = PRODUCT,
                 )
-                likeJpaRepository.save(like)
             }
+            likeJpaRepository.saveAll(likes)
 
-            val command = LikeCommand.GetLikes(
+            val likeCounts = (1..20).map { i ->
+                LikeCount(
+                    targetType = PRODUCT,
+                    targetId = i.toLong(),
+                    count = i.toLong(),
+                )
+            }
+            likeCountJpaRepository.saveAll(likeCounts)
+
+            val command = LikeCommand.FindLikes(
                 userId = 1L,
                 targetType = PRODUCT,
                 pageable = Pageable.ofSize(10),
@@ -274,18 +286,18 @@ class LikeServiceTest(
             assertAll(
                 {
                     assertThat(actual.content).hasSize(10)
-                        .extracting("userId", "targetId", "targetType")
+                        .extracting("userId", "targetId", "targetType", "count")
                         .containsExactlyInAnyOrder(
-                            tuple(1L, 20L, PRODUCT),
-                            tuple(1L, 19L, PRODUCT),
-                            tuple(1L, 18L, PRODUCT),
-                            tuple(1L, 17L, PRODUCT),
-                            tuple(1L, 16L, PRODUCT),
-                            tuple(1L, 15L, PRODUCT),
-                            tuple(1L, 14L, PRODUCT),
-                            tuple(1L, 13L, PRODUCT),
-                            tuple(1L, 12L, PRODUCT),
-                            tuple(1L, 11L, PRODUCT),
+                            tuple(1L, 20L, PRODUCT, 20L),
+                            tuple(1L, 19L, PRODUCT, 19L),
+                            tuple(1L, 18L, PRODUCT, 18L),
+                            tuple(1L, 17L, PRODUCT, 17L),
+                            tuple(1L, 16L, PRODUCT, 16L),
+                            tuple(1L, 15L, PRODUCT, 15L),
+                            tuple(1L, 14L, PRODUCT, 14L),
+                            tuple(1L, 13L, PRODUCT, 13L),
+                            tuple(1L, 12L, PRODUCT, 12L),
+                            tuple(1L, 11L, PRODUCT, 11L),
                         )
                 },
                 { assertThat(actual.totalElements).isEqualTo(20) },

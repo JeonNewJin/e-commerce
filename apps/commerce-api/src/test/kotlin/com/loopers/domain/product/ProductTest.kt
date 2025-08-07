@@ -1,6 +1,7 @@
 package com.loopers.domain.product
 
-import com.loopers.domain.product.ProductStatus.SALE
+import com.loopers.domain.product.model.ProductStatus.SALE
+import com.loopers.domain.product.entity.Product
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import org.assertj.core.api.Assertions.assertThat

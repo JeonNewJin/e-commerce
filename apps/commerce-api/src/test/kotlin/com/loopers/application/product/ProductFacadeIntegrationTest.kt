@@ -1,11 +1,11 @@
 package com.loopers.application.product
 
-import com.loopers.domain.brand.Brand
-import com.loopers.domain.like.LikeCount
-import com.loopers.domain.like.LikeableType.PRODUCT
-import com.loopers.domain.product.Product
-import com.loopers.domain.product.ProductSortType.LIKES_DESC
-import com.loopers.domain.product.ProductStatus.SALE
+import com.loopers.domain.brand.entity.Brand
+import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeableType.PRODUCT
+import com.loopers.domain.product.entity.Product
+import com.loopers.domain.product.model.ProductSortType.LIKES_DESC
+import com.loopers.domain.product.model.ProductStatus.SALE
 import com.loopers.infrastructure.brand.BrandJpaRepository
 import com.loopers.infrastructure.like.LikeCountJpaRepository
 import com.loopers.infrastructure.product.ProductJpaRepository
@@ -39,7 +39,7 @@ class ProductFacadeIntegrationTest(
 
             // When
             val actual = assertThrows<CoreException> {
-                productFacade.getProduct(nonExistentProductId)
+                productFacade.getProductOnSale(nonExistentProductId)
             }
 
             // Then
@@ -75,7 +75,7 @@ class ProductFacadeIntegrationTest(
             likeCountJpaRepository.save(likeCount)
 
             // When
-            val actual = productFacade.getProduct(product.id)
+            val actual = productFacade.getProductOnSale(product.id)
 
             // Then
             assertAll(
@@ -121,13 +121,13 @@ class ProductFacadeIntegrationTest(
         }
         likeCountJpaRepository.saveAll(likeCounts)
 
-        val input = ProductInput.GetProducts(
+        val input = ProductInput.FindProductsOnSale(
             sortType = LIKES_DESC,
             pageable = Pageable.ofSize(10),
         )
 
         // When
-        val actual = productFacade.getProducts(input)
+        val actual = productFacade.getProductsOnSale(input)
 
         // Then
         assertAll(
