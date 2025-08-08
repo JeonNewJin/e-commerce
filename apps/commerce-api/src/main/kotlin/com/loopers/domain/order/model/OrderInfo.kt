@@ -8,6 +8,7 @@ data class OrderInfo(
     val userId: Long,
     val orderLines: List<OrderLineInfo>,
     val totalPrice: BigDecimal,
+    val paymentAmount: BigDecimal,
     val status: OrderStatus,
     val createdAt: String,
 ) {
@@ -16,8 +17,9 @@ data class OrderInfo(
             OrderInfo(
                 id = order.id,
                 userId = order.userId,
-                orderLines = order.orderLines.map { OrderLineInfo.Companion.from(it) },
+                orderLines = order.orderLines.map { OrderLineInfo.from(it) },
                 totalPrice = order.totalPrice,
+                paymentAmount = order.paymentAmount,
                 status = order.status,
                 createdAt = order.createdAt.toString(),
             )

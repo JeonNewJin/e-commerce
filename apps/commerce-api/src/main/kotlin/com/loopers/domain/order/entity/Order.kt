@@ -15,7 +15,7 @@ import java.math.BigDecimal
 
 @Entity
 @Table(name = "orders")
-class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus) : BaseEntity() {
+class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus, paymentAmount: BigDecimal) : BaseEntity() {
 
     val userId: Long = userId
 
@@ -27,6 +27,8 @@ class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus) : Ba
 
     var status: OrderStatus = status
         private set
+
+    val paymentAmount: BigDecimal = paymentAmount
 
     init {
         require(userId > 0) {

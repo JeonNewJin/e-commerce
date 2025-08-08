@@ -32,6 +32,7 @@ class OrderServiceTest(
         val command = OrderCommand.PlaceOrder(
             userId = 1L,
             orderLines = orderLines,
+            paymentAmount = BigDecimal(20_000L),
         )
 
         // When
@@ -77,6 +78,7 @@ class OrderServiceTest(
                 ),
             ),
             status = PAYMENT_PENDING,
+            paymentAmount = BigDecimal(10_000L),
         )
         orderRepository.save(order)
 

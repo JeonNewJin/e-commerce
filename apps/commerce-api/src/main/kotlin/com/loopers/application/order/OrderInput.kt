@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable
 
 class OrderInput private constructor() {
 
-    data class Order(val loginId: String, val orderItems: List<OrderItem>)
+    data class Order(val loginId: String, val orderItems: List<OrderItem>, val couponId: Long? = null)
 
     data class OrderItem(val productId: Long, val quantity: Int)
 
