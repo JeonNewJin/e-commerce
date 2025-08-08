@@ -1,8 +1,7 @@
 package com.loopers.domain.user
 
-import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.domain.user.entity.User
-import com.loopers.domain.user.vo.LoginId
+import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.infrastructure.user.UserJpaRepository
 import com.loopers.support.IntegrationTestSupport
 import com.loopers.support.error.CoreException
@@ -42,7 +41,7 @@ class UserServiceTest(
             userService.register(command)
 
             // Then
-            val actual = userService.getUser(LoginId(command.loginId))
+            val actual = userService.getUser(command.loginId)
 
             assertAll(
                 { assertThat(actual).isNotNull() },
@@ -57,8 +56,9 @@ class UserServiceTest(
         @Test
         fun `성공적으로 생성되면, 생성된 사용자 정보를 저장하고 반환한다`() {
             // Given
+            val loginId = "wjsyuwls"
             val command = UserCommand.Register(
-                loginId = "wjsyuwls",
+                loginId = loginId,
                 email = "wjsyuwls@google.com",
                 birthdate = "2000-01-01",
                 gender = MALE,
@@ -68,7 +68,7 @@ class UserServiceTest(
             userService.register(command)
 
             // Then
-            val actual = userService.getUser(LoginId(command.loginId))
+            val actual = userService.getUser(loginId)
 
             assertAll(
                 { assertThat(actual).isNotNull() },
@@ -102,7 +102,7 @@ class UserServiceTest(
 
             // When
             val actual = assertThrows<CoreException> {
-                userService.getUser(LoginId(loginId))
+                userService.getUser(loginId)
             }
 
             // Then
@@ -115,8 +115,9 @@ class UserServiceTest(
         @Test
         fun `존재하는 사용자 ID로 조회하면, 해당 사용자 정보를 반환한다`() {
             // Given
+            val loginId = "wjsyuwls"
             val user = User(
-                loginId = "wjsyuwls",
+                loginId = loginId,
                 email = "wjsyuwls@google.com",
                 birthdate = "2000-01-01",
                 gender = MALE,
@@ -124,7 +125,7 @@ class UserServiceTest(
             userJpaRepository.save(user)
 
             // When
-            val actual = userService.getUser(user.loginId)
+            val actual = userService.getUser(loginId)
 
             // Then
             assertAll(

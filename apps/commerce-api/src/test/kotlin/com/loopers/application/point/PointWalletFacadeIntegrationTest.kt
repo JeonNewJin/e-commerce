@@ -105,7 +105,7 @@ class PointWalletFacadeIntegrationTest @Autowired constructor(
             // Given
             val input = PointWalletInput.Charge(
                 loginId = "wjsyuwls",
-                amount = Point.of(5_000L),
+                amount = BigDecimal(1_000L),
             )
 
             // When
@@ -140,7 +140,7 @@ class PointWalletFacadeIntegrationTest @Autowired constructor(
 
             val input = PointWalletInput.Charge(
                 loginId = loginId,
-                amount = Point.of(1_000L),
+                amount = BigDecimal(1_000L),
             )
 
             // When

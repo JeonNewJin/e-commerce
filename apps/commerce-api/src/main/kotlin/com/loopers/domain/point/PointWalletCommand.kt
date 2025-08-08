@@ -1,10 +1,10 @@
 package com.loopers.domain.point
 
-import com.loopers.domain.point.vo.Point
+import java.math.BigDecimal
 
 class PointWalletCommand private constructor() {
 
-    data class Charge(val userId: Long, val amount: Point)
+    data class Charge(val userId: Long, val amount: BigDecimal)
 
-    data class Use(val userId: Long, val amount: Point)
+    data class Use(val userId: Long, val amount: BigDecimal)
 }
