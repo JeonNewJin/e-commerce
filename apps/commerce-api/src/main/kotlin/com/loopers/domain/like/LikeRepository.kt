@@ -28,4 +28,6 @@ interface LikeRepository {
     ): List<LikeCount>
 
     fun findLikes(command: LikeCommand.FindLikes): Page<LikeWithCount>
+
+    fun findLikeCountByTargetWithLock(likeTarget: LikeTarget): LikeCount?
 }

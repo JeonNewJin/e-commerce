@@ -9,4 +9,6 @@ interface StockRepository {
     fun findByProductId(productId: Long): Stock?
 
     fun save(stock: Stock)
+
+    fun findByProductIdWithLock(productId: Long): Stock?
 }

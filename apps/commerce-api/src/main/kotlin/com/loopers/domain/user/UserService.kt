@@ -28,8 +28,8 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     @Transactional(readOnly = true)
-    fun getUser(loginId: LoginId): UserInfo =
-        userRepository.findByLoginId(loginId)
+    fun getUser(loginId: String): UserInfo =
+        userRepository.findByLoginId(LoginId(loginId))
             ?.let { UserInfo.from(it) }
             ?: throw CoreException(NOT_FOUND, "해당 사용자를 찾을 수 없습니다.")
 }

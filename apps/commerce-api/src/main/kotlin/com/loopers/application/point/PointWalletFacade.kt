@@ -1,7 +1,6 @@
 package com.loopers.application.point
 
 import com.loopers.domain.point.PointWalletService
-import com.loopers.domain.user.vo.LoginId
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -11,7 +10,7 @@ class PointWalletFacade(private val userService: UserService, private val pointW
 
     @Transactional(readOnly = true)
     fun getPoint(loginId: String): PointWalletOutput {
-        val user = userService.getUser(LoginId(loginId))
+        val user = userService.getUser(loginId)
 
         return pointWalletService.getPointWallet(user.id)
             .let { PointWalletOutput.from(it) }
@@ -19,7 +18,7 @@ class PointWalletFacade(private val userService: UserService, private val pointW
 
     @Transactional
     fun charge(input: PointWalletInput.Charge): PointWalletOutput {
-        val user = userService.getUser(LoginId(input.loginId))
+        val user = userService.getUser(input.loginId)
 
         return pointWalletService.charge(input.toCommand(user.id))
             .let { PointWalletOutput.from(it) }

@@ -31,6 +31,7 @@ class OrderTest {
                     userId = userId,
                     orderLines = emptyOrderLines,
                     status = PAYMENT_PENDING,
+                    paymentAmount = BigDecimal(10_000L),
                 )
             }
 
@@ -55,6 +56,7 @@ class OrderTest {
                 userId = userId,
                 orderLines = orderLines,
                 status = PAYMENT_PENDING,
+                paymentAmount = BigDecimal(50_000L),
             )
 
             // Then
@@ -87,6 +89,7 @@ class OrderTest {
                 userId = userId,
                 orderLines = orderLines,
                 status = PAYMENT_COMPLETED,
+                paymentAmount = BigDecimal(10_000L),
             )
 
             // When
@@ -112,6 +115,7 @@ class OrderTest {
                 userId = userId,
                 orderLines = orderLines,
                 status = PAYMENT_PENDING,
+                paymentAmount = BigDecimal(10_000L),
             )
 
             // When

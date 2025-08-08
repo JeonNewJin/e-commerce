@@ -43,4 +43,7 @@ class LikeCoreRepository(
     ): List<LikeCount> = likeCountJpaRepository.findByTargetTypeAndTargetIds(targetType, targetIds)
 
     override fun findLikes(command: LikeCommand.FindLikes): Page<LikeWithCount> = customRepository.findLikes(command)
+
+    override fun findLikeCountByTargetWithLock(likeTarget: LikeTarget): LikeCount? =
+        likeCountJpaRepository.findByTargetWithLock(likeTarget)
 }

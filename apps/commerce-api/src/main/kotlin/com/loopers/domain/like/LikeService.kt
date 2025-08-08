@@ -6,7 +6,6 @@ import com.loopers.domain.like.model.LikeCountInfo
 import com.loopers.domain.like.model.LikeInfo
 import com.loopers.domain.like.model.LikeableType
 import com.loopers.domain.like.vo.LikeTarget
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,20 +26,16 @@ class LikeService(private val likeRepository: LikeRepository) {
             targetId = command.targetId,
             targetType = command.targetType,
         )
+        likeRepository.save(like)
 
-        try {
-            likeRepository.save(like)
+        val likeCount = likeRepository.findLikeCountByTargetWithLock(like.target)
+            ?: LikeCount(
+                targetId = command.targetId,
+                targetType = command.targetType,
+            )
 
-            val likeCount = likeRepository.findLikeCountByTarget(like.target)
-                ?: LikeCount(
-                    targetId = command.targetId,
-                    targetType = command.targetType,
-                )
-
-            likeCount.increase()
-            likeRepository.saveLikeCount(likeCount)
-        } catch (e: DataIntegrityViolationException) {
-        }
+        likeCount.increase()
+        likeRepository.saveLikeCount(likeCount)
     }
 
     @Transactional
@@ -52,7 +47,7 @@ class LikeService(private val likeRepository: LikeRepository) {
 
         likeRepository.delete(like)
 
-        val likeCount = likeRepository.findLikeCountByTarget(like.target)
+        val likeCount = likeRepository.findLikeCountByTargetWithLock(like.target)
             ?: return
 
         likeCount.decrease()
