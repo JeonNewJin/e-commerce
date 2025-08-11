@@ -10,7 +10,7 @@ class StockService(private val stockRepository: StockRepository) {
 
     @Transactional
     fun deduct(command: StockCommand.Deduct) {
-        val stock = stockRepository.findByProductId(command.productId)
+        val stock = stockRepository.findByProductIdWithLock(command.productId)
             ?: throw CoreException(NOT_FOUND, "해당 상품의 재고를 찾을 수 없습니다.")
 
         stock.deduct(command.quantity)

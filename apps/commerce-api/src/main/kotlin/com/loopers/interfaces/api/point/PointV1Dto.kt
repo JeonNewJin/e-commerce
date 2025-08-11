@@ -2,7 +2,6 @@ package com.loopers.interfaces.api.point
 
 import com.loopers.application.point.PointWalletInput
 import com.loopers.application.point.PointWalletOutput
-import com.loopers.domain.point.vo.Point
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotNull
@@ -21,7 +20,7 @@ class PointV1Dto private constructor() {
             fun toInput(loginId: String) =
                 PointWalletInput.Charge(
                     loginId = loginId,
-                    amount = Point.of(amount),
+                    amount = amount,
                 )
         }
     }

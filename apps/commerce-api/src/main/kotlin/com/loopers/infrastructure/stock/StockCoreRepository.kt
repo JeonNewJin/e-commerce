@@ -14,4 +14,7 @@ class StockCoreRepository(private val stockJpaRepository: StockJpaRepository) : 
     override fun save(stock: Stock) {
         stockJpaRepository.save(stock)
     }
+
+    override fun findByProductIdWithLock(productId: Long): Stock? =
+        stockJpaRepository.findByProductIdWithLock(productId)
 }

@@ -19,6 +19,7 @@ class OrderService(private val orderRepository: OrderRepository) {
             userId = command.userId,
             orderLines = command.orderLines,
             status = PAYMENT_PENDING,
+            paymentAmount = command.paymentAmount,
         )
         orderRepository.save(order)
         return OrderInfo.from(order)

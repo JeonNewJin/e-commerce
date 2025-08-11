@@ -109,7 +109,7 @@ class PointWalletServiceTest(
             // Given
             val command = PointWalletCommand.Charge(
                 userId = 1L,
-                amount = Point.of(10_000L),
+                amount = BigDecimal(10_000L),
             )
 
             // When
@@ -137,7 +137,7 @@ class PointWalletServiceTest(
             )
             pointWalletRepository.save(pointWallet)
 
-            val command = PointWalletCommand.Charge(userId, chargeAmount)
+            val command = PointWalletCommand.Charge(userId, chargeAmount.value)
 
             // When
             pointWalletService.charge(command)
@@ -165,7 +165,7 @@ class PointWalletServiceTest(
             )
             pointWalletRepository.save(pointWallet)
 
-            val command = PointWalletCommand.Charge(userId, chargeAmount)
+            val command = PointWalletCommand.Charge(userId, chargeAmount.value)
 
             // When
             val actual = pointWalletService.charge(command)
