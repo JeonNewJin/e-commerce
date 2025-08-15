@@ -7,11 +7,23 @@ import com.loopers.support.error.ErrorType
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.Index
 import jakarta.persistence.Table
 import java.math.BigDecimal
 
 @Entity
-@Table(name = "product")
+@Table(
+    name = "product",
+    indexes = [
+        Index(name = "idx_brand_status", columnList = "brandId, status"),
+        Index(name = "idx_brand_status_published_at", columnList = "brandId, status, publishedAt DESC"),
+        Index(name = "idx_brand_status_price", columnList = "brandId, status, price"),
+        Index(name = "idx_brand_status_like_count", columnList = "brandId, status, likeCount DESC"),
+        Index(name = "idx_status_published_at", columnList = "status, publishedAt DESC"),
+        Index(name = "idx_status_price", columnList = "status, price"),
+        Index(name = "idx_status_like_count", columnList = "status, likeCount DESC"),
+    ],
+)
 class Product(name: String, price: BigDecimal, brandId: Long, publishedAt: String, status: ProductStatus) : BaseEntity() {
 
     val brandId: Long = brandId
@@ -26,6 +38,9 @@ class Product(name: String, price: BigDecimal, brandId: Long, publishedAt: Strin
 
     @Enumerated(EnumType.STRING)
     var status: ProductStatus = status
+        private set
+
+    var likeCount: Long = 0L
         private set
 
     init {

@@ -9,6 +9,7 @@ data class ProductInfo(
     val price: BigDecimal,
     val publishedAt: String,
     val status: ProductStatus,
+    val likeCount: Long,
     val brandId: Long,
 ) {
     companion object {
@@ -19,6 +20,7 @@ data class ProductInfo(
                 price = product.price,
                 publishedAt = product.publishedAt,
                 status = product.status,
+                likeCount = product.likeCount,
                 brandId = product.brandId,
             )
     }

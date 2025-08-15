@@ -1,7 +1,6 @@
 package com.loopers.application.product
 
 import com.loopers.domain.brand.model.BrandInfo
-import com.loopers.domain.like.model.LikeCountInfo
 import com.loopers.domain.product.model.ProductInfo
 import com.loopers.domain.product.model.ProductStatus
 import java.math.BigDecimal
@@ -18,14 +17,14 @@ data class ProductOutput(
     val brandDescription: String,
 ) {
     companion object {
-        fun of(product: ProductInfo, brand: BrandInfo, likeCount: LikeCountInfo?): ProductOutput =
+        fun of(product: ProductInfo, brand: BrandInfo): ProductOutput =
             ProductOutput(
                 id = product.id,
                 name = product.name,
                 price = product.price,
                 publishedAt = product.publishedAt,
                 status = product.status,
-                likeCount = likeCount?.count ?: 0L,
+                likeCount = product.likeCount,
                 brandId = brand.id,
                 brandName = brand.name,
                 brandDescription = brand.description,
