@@ -35,3 +35,5 @@ pluginManagement {
         }
     }
 }
+
+include("modules:redis")

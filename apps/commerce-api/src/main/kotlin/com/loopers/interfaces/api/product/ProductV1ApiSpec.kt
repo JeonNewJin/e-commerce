@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api.product
 
+import com.loopers.domain.product.model.ProductSortType
 import com.loopers.interfaces.api.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -28,5 +29,6 @@ interface ProductV1ApiSpec {
         @Parameter(description = "상품 목록 조회 요청 정보", required = true)
         @PageableDefault(size = 20, page = 0) pageable: Pageable,
         brandId: Long? = null,
+        sort: ProductSortType? = null,
     ): ApiResponse<ProductV1Dto.Response.ProductsResponse>
 }

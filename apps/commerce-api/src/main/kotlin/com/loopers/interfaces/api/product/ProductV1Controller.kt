@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.product
 
 import com.loopers.application.product.ProductFacade
 import com.loopers.application.product.ProductInput
+import com.loopers.domain.product.model.ProductSortType
 import com.loopers.interfaces.api.ApiResponse
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -26,8 +27,9 @@ class ProductV1Controller(private val productFacade: ProductFacade) : ProductV1A
     override fun getProducts(
         @PageableDefault(size = 20, page = 0) pageable: Pageable,
         brandId: Long?,
+        sort: ProductSortType?,
     ): ApiResponse<ProductV1Dto.Response.ProductsResponse> =
-        productFacade.getProductsOnSale(ProductInput.FindProductsOnSale(brandId = brandId, pageable = pageable))
+        productFacade.getProductsOnSale(ProductInput.FindProductsOnSale(brandId, sort, pageable))
             .let { ProductV1Dto.Response.ProductsResponse.from(it) }
             .let { ApiResponse.success(it) }
 }
