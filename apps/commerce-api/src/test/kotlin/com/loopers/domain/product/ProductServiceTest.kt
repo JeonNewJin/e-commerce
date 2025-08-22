@@ -45,7 +45,13 @@ class ProductServiceTest(
         @Test
         fun `존재하는 상품 ID로 조회하면, 해당 상품 정보를 반환한다`() {
             // Given
-            val product = Product("테스트 상품", 10000.toBigDecimal(), 1L, "2025-07-30", SALE)
+            val product = Product(
+                brandId = 1L,
+                name = "테스트 상품",
+                price = 10000.toBigDecimal(),
+                publishedAt = "2025-07-30",
+                status = SALE,
+            )
             productJpaRepository.save(product)
 
             // When
@@ -72,11 +78,11 @@ class ProductServiceTest(
             // Given
             val products = (1..20).map { i ->
                 Product(
-                    "상품$i",
-                    (10000 * i).toBigDecimal(),
-                    1L,
-                    LocalDate.of(2025, 7, i).toString(),
-                    SALE,
+                    brandId = 1L,
+                    name = "상품$i",
+                    price = (10000 * i).toBigDecimal(),
+                    publishedAt = LocalDate.of(2025, 7, i).toString(),
+                    status = SALE,
                 )
             }
             productJpaRepository.saveAll(products)
@@ -112,11 +118,11 @@ class ProductServiceTest(
             // Given
             val products = (1..20).map { i ->
                 Product(
-                    "상품$i",
-                    (10000 * i).toBigDecimal(),
-                    1L,
-                    LocalDate.of(2025, 7, i).toString(),
-                    SALE,
+                    brandId = 1L,
+                    name = "상품$i",
+                    price = (10000 * i).toBigDecimal(),
+                    publishedAt = LocalDate.of(2025, 7, i).toString(),
+                    status = SALE,
                 )
             }
             productJpaRepository.saveAll(products)

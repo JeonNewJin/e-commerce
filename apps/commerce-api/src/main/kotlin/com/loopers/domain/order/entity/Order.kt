@@ -2,11 +2,9 @@ package com.loopers.domain.order.entity
 
 import com.loopers.domain.BaseEntity
 import com.loopers.domain.order.model.OrderStatus
-import com.loopers.domain.order.model.OrderStatus.PAYMENT_COMPLETED
-import com.loopers.domain.order.model.OrderStatus.PAYMENT_PENDING
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
-import jakarta.persistence.CascadeType
+import jakarta.persistence.CascadeType.PERSIST
 import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
@@ -15,11 +13,13 @@ import java.math.BigDecimal
 
 @Entity
 @Table(name = "orders")
-class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus, paymentAmount: BigDecimal) : BaseEntity() {
+class Order(orderCode: String, userId: Long, orderLines: List<OrderLine>, status: OrderStatus) : BaseEntity() {
+
+    val orderCode: String = orderCode
 
     val userId: Long = userId
 
-    @OneToMany(cascade = [CascadeType.PERSIST])
+    @OneToMany(cascade = [PERSIST])
     @JoinColumn(name = "order_id")
     val orderLines: List<OrderLine> = orderLines
 
@@ -28,7 +28,8 @@ class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus, paym
     var status: OrderStatus = status
         private set
 
-    val paymentAmount: BigDecimal = paymentAmount
+    var paymentAmount: BigDecimal = calculateTotalPrice()
+        private set
 
     init {
         require(userId > 0) {
@@ -41,11 +42,7 @@ class Order(userId: Long, orderLines: List<OrderLine>, status: OrderStatus, paym
 
     private fun calculateTotalPrice(): BigDecimal = orderLines.sumOf { it.calculateLinePrice() }
 
-    fun completePayment() {
-        if (status != PAYMENT_PENDING) {
-            throw CoreException(BAD_REQUEST, "주문 상태가 결제 대기 중이 아닙니다. 현재 상태: $status")
-        }
-
-        status = PAYMENT_COMPLETED
+    fun changePaymentAmount(paymentAmount: BigDecimal) {
+        this.paymentAmount = paymentAmount
     }
 }

@@ -64,6 +64,7 @@ class ProductFacadeIntegrationTest(
                 publishedAt = "2025-07-31",
                 status = SALE,
                 brandId = 1L,
+                likeCount = 100L,
             )
             productJpaRepository.save(product)
 
@@ -108,6 +109,7 @@ class ProductFacadeIntegrationTest(
                 publishedAt = LocalDate.of(2025, 7, index).toString(),
                 status = SALE,
                 brandId = brand.id,
+                likeCount = index * 10L,
             )
         }
         productJpaRepository.saveAll(products)

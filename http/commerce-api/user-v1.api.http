@@ -6,7 +6,7 @@ Content-Type: application/json
   "userId": "wjsyuwls",
   "email": "wjsyuwls@gmail.com",
   "birthdate": "2000-01-01",
-  "gender": "M"
+  "gender": "MALE"
 }
 
 ### 내 정보 조회

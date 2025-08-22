@@ -2,10 +2,12 @@ package com.loopers.domain.product.entity
 
 import com.loopers.domain.BaseEntity
 import com.loopers.domain.product.model.ProductStatus
+import com.loopers.domain.product.model.ProductStatus.SALE
 import com.loopers.support.error.CoreException
-import com.loopers.support.error.ErrorType
+import com.loopers.support.error.ErrorType.BAD_REQUEST
+import com.loopers.support.error.ErrorType.NOT_FOUND
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
+import jakarta.persistence.EnumType.STRING
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Index
 import jakarta.persistence.Table
@@ -24,7 +26,8 @@ import java.math.BigDecimal
         Index(name = "idx_status_like_count", columnList = "status, likeCount DESC"),
     ],
 )
-class Product(name: String, price: BigDecimal, brandId: Long, publishedAt: String, status: ProductStatus) : BaseEntity() {
+class Product(brandId: Long, name: String, price: BigDecimal, publishedAt: String, status: ProductStatus, likeCount: Long = 0L) :
+    BaseEntity() {
 
     val brandId: Long = brandId
 
@@ -36,30 +39,31 @@ class Product(name: String, price: BigDecimal, brandId: Long, publishedAt: Strin
     var publishedAt: String = publishedAt
         private set
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(STRING)
     var status: ProductStatus = status
         private set
 
-    var likeCount: Long = 0L
+    var likeCount: Long = likeCount
         private set
 
     init {
         require(name.isNotBlank()) {
-            throw CoreException(ErrorType.BAD_REQUEST, "상품 이름은 필수입니다.")
+            throw CoreException(BAD_REQUEST, "상품 이름은 필수입니다.")
         }
         require(price >= BigDecimal.ZERO) {
-            throw CoreException(ErrorType.BAD_REQUEST, "상품 가격은 0 이상이어야 합니다.")
+            throw CoreException(BAD_REQUEST, "상품 가격은 0 이상이어야 합니다.")
         }
         require(brandId > 0) {
-            throw CoreException(ErrorType.BAD_REQUEST, "유효하지 않은 브랜드 ID 입니다.")
+            throw CoreException(BAD_REQUEST, "유효하지 않은 브랜드 ID 입니다.")
         }
         require(publishedAt.isNotBlank()) {
-            throw CoreException(ErrorType.BAD_REQUEST, "상품 출간일시는 필수입니다.")
-        }
-        requireNotNull(status) {
-            throw CoreException(ErrorType.BAD_REQUEST, "상품 상태는 필수입니다.")
+            throw CoreException(BAD_REQUEST, "상품 출간일시는 필수입니다.")
         }
     }
 
-    fun isNotOnSale(): Boolean = status != ProductStatus.SALE
+    fun checkIsOnSale() {
+        require(status == SALE) {
+            throw CoreException(NOT_FOUND, "해당 상품은 판매 중이 아닙니다.")
+        }
+    }
 }

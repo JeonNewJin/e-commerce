@@ -12,14 +12,10 @@ import org.springframework.transaction.annotation.Transactional
 class ProductService(private val productRepository: ProductRepository) {
 
     fun getProductOnSale(productId: Long): ProductInfo {
-        val product = (
-                productRepository.findById(productId)
-                    ?: throw CoreException(NOT_FOUND, "해당 상품을 찾을 수 없습니다.")
-                )
+        val product = productRepository.findById(productId)
+            ?: throw CoreException(NOT_FOUND, "해당 상품을 찾을 수 없습니다.")
 
-        if (product.isNotOnSale()) {
-            throw CoreException(NOT_FOUND, "해당 상품은 판매 중이 아닙니다.")
-        }
+        product.checkIsOnSale()
 
         return ProductInfo.from(product)
     }
