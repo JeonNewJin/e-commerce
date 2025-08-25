@@ -1,9 +1,8 @@
 package com.loopers.domain.order
 
-import com.loopers.domain.order.model.OrderStatus.PAYMENT_COMPLETED
-import com.loopers.domain.order.model.OrderStatus.PAYMENT_PENDING
 import com.loopers.domain.order.entity.Order
 import com.loopers.domain.order.entity.OrderLine
+import com.loopers.domain.order.model.OrderStatus.PENDING
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.BAD_REQUEST
 import org.assertj.core.api.Assertions.assertThat
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
+import java.util.UUID
 
 class OrderTest {
 
@@ -28,10 +28,10 @@ class OrderTest {
             // When
             val actual = assertThrows<CoreException> {
                 Order(
+                    orderCode = UUID.randomUUID().toString(),
                     userId = userId,
                     orderLines = emptyOrderLines,
-                    status = PAYMENT_PENDING,
-                    paymentAmount = BigDecimal(10_000L),
+                    status = PENDING,
                 )
             }
 
@@ -46,6 +46,7 @@ class OrderTest {
         fun `주문이 정상 생성되고 총 주문 금액을 계산할 수 있다`() {
             // Given
             val userId = 1L
+            val orderCode = UUID.randomUUID().toString()
             val orderLines = listOf(
                 OrderLine(productId = 1L, quantity = 1, unitPrice = BigDecimal(10_000L)),
                 OrderLine(productId = 2L, quantity = 2, unitPrice = BigDecimal(20_000L)),
@@ -53,14 +54,15 @@ class OrderTest {
 
             // When
             val actual = Order(
+                orderCode = orderCode,
                 userId = userId,
                 orderLines = orderLines,
-                status = PAYMENT_PENDING,
-                paymentAmount = BigDecimal(50_000L),
+                status = PENDING,
             )
 
             // Then
             assertAll(
+                { assertThat(actual.orderCode).isEqualTo(orderCode) },
                 { assertThat(actual.userId).isEqualTo(1L) },
                 {
                     assertThat(actual.orderLines).hasSize(2)
@@ -72,57 +74,6 @@ class OrderTest {
                 },
                 { assertThat(actual.totalPrice).isEqualTo(BigDecimal(50_000L)) },
             )
-        }
-    }
-
-    @Nested
-    inner class `결제를 완료할 때, ` {
-
-        @Test
-        fun `이미 결제 완료된 주문은 BAD_REQUEST 예외가 발생한다`() {
-            // Given
-            val userId = 1L
-            val orderLines = listOf(
-                OrderLine(productId = 1L, quantity = 1, unitPrice = BigDecimal(10_000L)),
-            )
-            val order = Order(
-                userId = userId,
-                orderLines = orderLines,
-                status = PAYMENT_COMPLETED,
-                paymentAmount = BigDecimal(10_000L),
-            )
-
-            // When
-            val actual = assertThrows<CoreException> {
-                order.completePayment()
-            }
-
-            // Then
-            assertAll(
-                { assertThat(actual.errorType).isEqualTo(BAD_REQUEST) },
-                { assertThat(actual.message).isEqualTo("주문 상태가 결제 대기 중이 아닙니다. 현재 상태: PAYMENT_COMPLETED") },
-            )
-        }
-
-        @Test
-        fun `결제 대기 상태에서 결제 완료로 상태가 변경된다`() {
-            // Given
-            val userId = 1L
-            val orderLines = listOf(
-                OrderLine(productId = 1L, quantity = 1, unitPrice = BigDecimal(10_000L)),
-            )
-            val order = Order(
-                userId = userId,
-                orderLines = orderLines,
-                status = PAYMENT_PENDING,
-                paymentAmount = BigDecimal(10_000L),
-            )
-
-            // When
-            order.completePayment()
-
-            // Then
-            assertThat(order.status).isEqualTo(PAYMENT_COMPLETED)
         }
     }
 }

@@ -1,0 +1,21 @@
+### 주문 생성
+POST {{commerce-api}}/api/v1/orders
+X-USER-ID: wjsyuwls
+Content-Type: application/json
+
+{
+  "orderItems": [
+    {
+      "productId": 3,
+      "quantity": 1
+    },
+    {
+      "productId": 4,
+      "quantity": 1
+    }
+  ],
+  "couponId": 0,
+  "paymentMethod": "CARD",
+  "cardType": "SAMSUNG",
+  "cardNo": "1234-1234-1234-1234"
+}

@@ -1,13 +1,14 @@
 package com.loopers.application.order
 
 import com.loopers.domain.brand.entity.Brand
-import com.loopers.domain.point.vo.Point
+import com.loopers.domain.payment.PaymentMethod.POINT
 import com.loopers.domain.point.entity.PointWallet
+import com.loopers.domain.point.vo.Point
 import com.loopers.domain.product.entity.Product
 import com.loopers.domain.product.model.ProductStatus.SALE
 import com.loopers.domain.stock.entity.Stock
-import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.domain.user.entity.User
+import com.loopers.domain.user.model.Gender.MALE
 import com.loopers.infrastructure.brand.BrandJpaRepository
 import com.loopers.infrastructure.order.OrderJpaRepository
 import com.loopers.infrastructure.point.PointWalletJpaRepository
@@ -72,11 +73,15 @@ class OrderFacadeIntegrationTest(
         val input = OrderInput.Order(
             loginId = "wjsyuwls",
             orderItems = listOf(
-                OrderInput.OrderItem(
+                OrderInput.Order.OrderItem(
                     productId = product.id,
                     quantity = 1,
                 ),
             ),
+            couponId = null,
+            paymentMethod = POINT,
+            cardType = null,
+            cardNo = null,
         )
 
         // When
@@ -84,12 +89,10 @@ class OrderFacadeIntegrationTest(
 
         // Then
         val updatedPointWallet = pointWalletJpaRepository.findByUserId(user.id)!!
-        val updatedStock = stockJpaRepository.findByProductId(product.id)!!
         val orders = orderJpaRepository.findAll()
 
         assertAll(
             { assertThat(updatedPointWallet.balance.value).isEqualTo(BigDecimal("40000.00")) },
-            { assertThat(updatedStock.quantity).isEqualTo(99) },
             { assertThat(orders).hasSize(1) },
             { assertThat(orders[0].userId).isEqualTo(user.id) },
             { assertThat(orders[0].totalPrice).isEqualTo(BigDecimal("10000.00")) },

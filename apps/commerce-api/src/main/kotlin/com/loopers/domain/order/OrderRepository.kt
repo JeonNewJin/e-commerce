@@ -10,4 +10,6 @@ interface OrderRepository {
     fun findById(id: Long): Order?
 
     fun findOrders(command: OrderCommand.GetOrders): Page<Order>
+
+    fun findByOrderCode(orderCode: String): Order?
 }

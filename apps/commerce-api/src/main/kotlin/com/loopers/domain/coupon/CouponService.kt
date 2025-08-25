@@ -1,5 +1,6 @@
 package com.loopers.domain.coupon
 
+import com.loopers.domain.coupon.entity.Coupon
 import com.loopers.domain.coupon.entity.IssuedCoupon
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.NOT_FOUND
@@ -25,6 +26,10 @@ class CouponService(private val couponRepository: CouponRepository) {
         )
         couponRepository.saveIssuedCoupon(issuedCoupon)
     }
+
+    fun findCouponIfIssuedToUser(couponId: Long, userId: Long): Coupon? =
+        couponRepository.findIssuedCouponBy(couponId, userId)
+            ?.let { couponRepository.findById(couponId) }
 
     @Transactional
     fun use(command: CouponCommand.Use) {

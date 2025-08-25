@@ -29,6 +29,40 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+pg-simulator:
+  payment:
+    callback-url: http://localhost:8080/api/v1/payments/callback
+
+resilience4j:
+  retry:
+    instances:
+      pgRetry:
+        max-attempts: 3 # 최초 요청 1회 + 재시도 2회 = 총 3번
+        wait-duration: 1s
+        retry-exceptions:
+          - feign.FeignException.InternalServerError
+          - feign.RetryableException # 타임아웃 등 네트워크 예외도 모두 커버
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - feign.FeignException.BadRequest # 400 비즈니스 예외 무시
+        fail-after-max-attempts: true
+
+  circuitbreaker:
+    instances:
+      pgCircuit:
+        sliding-window-type: count_based
+        # 최근 10건을 관찰하지만, 7건 이상이 쌓인 시점부터 임계치 판정을 시작
+        # 1~6건: 상태 판정 안 함, 7~10건: 판정 함, 11건 이후: 계속 최근 10건으로 판정
+        sliding-window-size: 10 # 슬라이딩 윈도우 크기
+        minimum-number-of-calls: 7 # 최소 호출 수
+        failure-rate-threshold: 50 # 실패율이 50% 넘으면 Open
+        slow-call-duration-threshold: 2s # 느린 호출로 간주되는 시간 (2초)
+        slow-call-rate-threshold: 50 # 느린 호출 비율이 50% 넘으면 Open
+        wait-duration-in-open-state: 2s # Open 상태 유지 시간
+        permitted-number-of-calls-in-half-open-state: 1 # Half-Open 상태에서 허용되는 호출 수
+        max-wait-duration-in-half-open-state: 1s # Half-Open 상태에서 최대 대기 시간
+
 ---
 spring:
   config:

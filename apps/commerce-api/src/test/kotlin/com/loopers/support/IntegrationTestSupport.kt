@@ -1,6 +1,7 @@
 package com.loopers.support
 
 import com.loopers.utils.DatabaseCleanUp
+import com.loopers.utils.RedisCleanUp
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -13,8 +14,12 @@ abstract class IntegrationTestSupport {
     @Autowired
     protected lateinit var databaseCleanUp: DatabaseCleanUp
 
+    @Autowired
+    protected lateinit var redisCleanUp: RedisCleanUp
+
     @AfterEach
     fun tearDown() {
         databaseCleanUp.truncateAllTables()
+        redisCleanUp.truncateAll()
     }
 }

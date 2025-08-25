@@ -20,4 +20,6 @@ class OrderCoreRepository(
 
     override fun findOrders(command: OrderCommand.GetOrders): Page<Order> =
         customRepository.findOrders(command)
+
+    override fun findByOrderCode(orderCode: String): Order? = orderJpaRepository.findByOrderCode(orderCode)
 }

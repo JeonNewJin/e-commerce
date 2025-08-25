@@ -5,11 +5,9 @@ import com.loopers.domain.coupon.CouponService
 import com.loopers.domain.order.OrderCommand
 import com.loopers.domain.order.OrderService
 import com.loopers.domain.order.entity.OrderLine
-import com.loopers.domain.point.PointWalletCommand
-import com.loopers.domain.point.PointWalletService
+import com.loopers.domain.payment.PaymentCommand
+import com.loopers.domain.payment.PaymentService
 import com.loopers.domain.product.ProductService
-import com.loopers.domain.stock.StockCommand
-import com.loopers.domain.stock.StockService
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -18,10 +16,9 @@ import org.springframework.transaction.annotation.Transactional
 class OrderFacade(
     private val userService: UserService,
     private val productService: ProductService,
-    private val stockService: StockService,
     private val orderService: OrderService,
-    private val pointWalletService: PointWalletService,
     private val couponService: CouponService,
+    private val paymentService: PaymentService,
 ) {
 
     @Transactional
@@ -33,33 +30,26 @@ class OrderFacade(
             OrderLine(productId = product.id, quantity = it.quantity, unitPrice = product.price)
         }
 
-        var paymentAmount = orderLines.sumOf { it.calculateLinePrice() }
-        if (input.couponId != null) {
-            couponService.use(CouponCommand.Use(couponId = input.couponId, userId = user.id))
-            paymentAmount = couponService.calculateDiscountedAmount(
-                CouponCommand.CalculateDiscount(
-                    couponId = input.couponId,
-                    orderAmount = paymentAmount,
-                ),
-            )
-        }
-
+        val coupon = input.couponId?.let { couponService.findCouponIfIssuedToUser(couponId = input.couponId, userId = user.id) }
         val order = orderService.placeOrder(
             OrderCommand.PlaceOrder(
                 userId = user.id,
                 orderLines = orderLines,
-                paymentAmount = paymentAmount,
+                coupon = coupon,
             ),
         )
+        coupon?.let { couponService.use(CouponCommand.Use(couponId = input.couponId, userId = user.id)) }
 
-        pointWalletService.use(PointWalletCommand.Use(userId = user.id, amount = order.paymentAmount))
-
-        orderService.completePayment(order.id)
-
-        orderLines.forEach { orderLine ->
-            val stockCommand = StockCommand.Deduct(productId = orderLine.productId, quantity = orderLine.quantity)
-            stockService.deduct(stockCommand)
-        }
+        paymentService.pay(
+            PaymentCommand.Pay(
+                userId = user.id,
+                orderCode = order.orderCode,
+                amount = order.paymentAmount,
+                paymentMethod = input.paymentMethod,
+                cardType = input.cardType,
+                cardNo = input.cardNo,
+            ),
+        )
     }
 
     @Transactional(readOnly = true)
