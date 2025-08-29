@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestHeader
 
 @Tag(name = "Product V1 API", description = "상품 API 입니다.")
 interface ProductV1ApiSpec {
@@ -19,6 +20,8 @@ interface ProductV1ApiSpec {
     fun getProduct(
         @Parameter(description = "상품 ID", required = true)
         @PathVariable productId: Long,
+
+        @RequestHeader(value = "X-USER-ID", required = false) userId: String?,
     ): ApiResponse<ProductV1Dto.Response.ProductResponse>
 
     @Operation(

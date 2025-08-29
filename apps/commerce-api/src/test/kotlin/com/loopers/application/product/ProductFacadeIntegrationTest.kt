@@ -36,10 +36,11 @@ class ProductFacadeIntegrationTest(
         fun `존재하지 않는 상품 ID로 조회하면, NOT_FOUND 예외가 발생한다`() {
             // Given
             val nonExistentProductId = 999L
+            val userId = "wjsyuwls"
 
             // When
             val actual = assertThrows<CoreException> {
-                productFacade.getProductOnSale(nonExistentProductId)
+                productFacade.getProductOnSale(nonExistentProductId, userId)
             }
 
             // Then
@@ -75,8 +76,10 @@ class ProductFacadeIntegrationTest(
             )
             likeCountJpaRepository.save(likeCount)
 
+            val userId = "wjsyuwls"
+
             // When
-            val actual = productFacade.getProductOnSale(product.id)
+            val actual = productFacade.getProductOnSale(product.id, userId)
 
             // Then
             assertAll(

@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.payment
 
-import com.loopers.application.payment.PaymentFacade
+import com.loopers.domain.payment.PaymentService
 import com.loopers.interfaces.api.ApiResponse
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,14 +10,14 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/v1/payments")
-class PaymentV1Controller(private val paymentFacade: PaymentFacade) {
+class PaymentV1Controller(private val paymentService: PaymentService) {
 
     @PostMapping("/callback")
     fun callback(
         @RequestBody request: PaymentV1Dto.Request.Callback,
     ): ApiResponse<Unit> {
         val paidAt = LocalDateTime.now().toString()
-        paymentFacade.complete(request.toInput(paidAt))
+        paymentService.complete(request.toCommand(paidAt))
         return ApiResponse.success(Unit)
     }
 }

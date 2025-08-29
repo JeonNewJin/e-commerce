@@ -58,4 +58,51 @@ class IssuedCouponTest {
             )
         }
     }
+
+    @Nested
+    inner class `쿠폰 사용을 취소할 때, ` {
+
+        @Test
+        fun `쿠폰 상태가 USED가 아니면, CONFLICT 예외가 발생한다`() {
+            // given
+            val issuedCoupon = IssuedCoupon(
+                couponId = 1L,
+                userId = 1L,
+                status = AVAILABLE,
+                issuedAt = LocalDateTime.now(),
+            )
+
+            // when
+            val actual = assertThrows<CoreException> {
+                issuedCoupon.cancel()
+            }
+
+            // then
+            assertAll(
+                { assertThat(actual.errorType).isEqualTo(CONFLICT) },
+                { assertThat(actual.message).isEqualTo("사용된 쿠폰만 취소할 수 있습니다.") },
+            )
+        }
+
+        @Test
+        fun `쿠폰 상태가 USED이면, 정상적으로 취소된다`() {
+            // given
+            val issuedCoupon = IssuedCoupon(
+                couponId = 1L,
+                userId = 1L,
+                status = USED,
+                issuedAt = LocalDateTime.now(),
+                usedAt = LocalDateTime.now().plusDays(1),
+            )
+
+            // when
+            issuedCoupon.cancel()
+
+            // then
+            assertAll(
+                { assertThat(issuedCoupon.status).isEqualTo(AVAILABLE) },
+                { assertThat(issuedCoupon.usedAt).isNull() },
+            )
+        }
+    }
 }

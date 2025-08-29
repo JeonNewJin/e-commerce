@@ -12,7 +12,11 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(readOnly = true)
 @Service
-class OrderService(private val orderRepository: OrderRepository, private val uuidGenerator: UUIDGenerator) {
+class OrderService(
+    private val orderRepository: OrderRepository,
+    private val uuidGenerator: UUIDGenerator,
+    private val orderEventPublisher: OrderEventPublisher,
+) {
 
     @Transactional
     fun placeOrder(command: OrderCommand.PlaceOrder): OrderInfo {
@@ -23,13 +27,36 @@ class OrderService(private val orderRepository: OrderRepository, private val uui
             userId = command.userId,
             orderLines = command.orderLines,
             status = PENDING,
+            couponId = command.coupon?.id,
         )
 
         command.coupon?.calculateDiscountedAmount(order.totalPrice)
             ?.let { order.changePaymentAmount(it) }
 
         orderRepository.save(order)
+
         return OrderInfo.from(order)
+    }
+
+    @Transactional
+    fun completeOrder(orderId: Long) {
+        val order = orderRepository.findById(orderId)
+            ?: throw CoreException(NOT_FOUND, "주문을 찾을 수 없습니다. 주문 ID: $orderId")
+
+        order.complete()
+
+        orderEventPublisher.publish(OrderEvent.OrderCompleted.from(order))
+
+        orderRepository.save(order)
+    }
+
+    @Transactional
+    fun failOrder(orderId: Long) {
+        val order = orderRepository.findById(orderId)
+            ?: throw CoreException(NOT_FOUND, "주문을 찾을 수 없습니다. 주문 ID: $orderId")
+
+        order.fail()
+        orderRepository.save(order)
     }
 
     fun getOrders(command: OrderCommand.GetOrders): Page<OrderInfo> =

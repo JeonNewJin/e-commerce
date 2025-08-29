@@ -4,7 +4,6 @@ import com.loopers.domain.brand.entity.Brand
 import com.loopers.domain.like.entity.Like
 import com.loopers.domain.like.entity.LikeCount
 import com.loopers.domain.like.model.LikeableType.PRODUCT
-import com.loopers.domain.like.vo.LikeTarget
 import com.loopers.domain.product.entity.Product
 import com.loopers.domain.product.model.ProductStatus.SALE
 import com.loopers.domain.user.entity.User
@@ -61,49 +60,6 @@ class LikeFacadeIntegrationTest(
     }
 
     @Test
-    fun `좋아요를 취소하면, 좋아요 카운트가 감소한다`() {
-        // Given
-        val user = User(
-            loginId = "wjsyuwls",
-            email = "wjsyuwls@google.com",
-            birthdate = "2000-01-01",
-            gender = MALE,
-        )
-        userJpaRepository.save(user)
-
-        val like = Like(
-            userId = 1L,
-            targetId = 1L,
-            targetType = PRODUCT,
-        )
-        likeJpaRepository.save(like)
-
-        val likeCount = LikeCount(
-            targetId = 1L,
-            targetType = PRODUCT,
-            count = 1,
-        )
-        likeCountJpaRepository.save(likeCount)
-
-        val input = LikeInput.Unlike(
-            loginId = "wjsyuwls",
-            targetId = 1L,
-            targetType = PRODUCT,
-        )
-
-        // When
-        likeFacade.unlike(input)
-
-        // Then
-        val actual = likeCountJpaRepository.findByTarget(LikeTarget(id = 1L, type = PRODUCT))
-
-        assertAll(
-            { assertThat(actual).isNotNull() },
-            { assertThat(actual?.count).isEqualTo(0) },
-        )
-    }
-
-    @Test
     fun `좋아요한 상품 목록을 조회할 때, 브랜드 정보 및 좋아요 개수를 포함한 상품 정보를 반환한다`() {
         // Given
         val user = User(
@@ -127,6 +83,7 @@ class LikeFacadeIntegrationTest(
                 brandId = brand.id,
                 publishedAt = "2025-07-31",
                 status = SALE,
+                likeCount = i.toLong(),
             )
         }
         productJpaRepository.saveAll(products)

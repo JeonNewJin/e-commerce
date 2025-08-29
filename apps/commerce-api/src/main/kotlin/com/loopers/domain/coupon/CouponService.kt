@@ -40,6 +40,15 @@ class CouponService(private val couponRepository: CouponRepository) {
         couponRepository.saveIssuedCoupon(issuedCoupon)
     }
 
+    @Transactional
+    fun cancelCouponUsage(command: CouponCommand.Cancel) {
+        val coupon = couponRepository.findIssuedCouponBy(command.couponId, command.userId)
+            ?: throw CoreException(NOT_FOUND, "취소 가능한 쿠폰을 찾을 수 없습니다.")
+
+        coupon.cancel()
+        couponRepository.saveIssuedCoupon(coupon)
+    }
+
     fun calculateDiscountedAmount(command: CouponCommand.CalculateDiscount): BigDecimal {
         val coupon = couponRepository.findById(command.couponId)
             ?: throw CoreException(NOT_FOUND, "쿠폰을 찾을 수 없습니다.")

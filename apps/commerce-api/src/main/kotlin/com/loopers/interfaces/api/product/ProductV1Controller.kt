@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -18,8 +19,9 @@ class ProductV1Controller(private val productFacade: ProductFacade) : ProductV1A
     @GetMapping("/{productId}")
     override fun getProduct(
         @PathVariable productId: Long,
+        @RequestHeader(value = "X-USER-ID", required = false) userId: String?,
     ): ApiResponse<ProductV1Dto.Response.ProductResponse> =
-        productFacade.getProductOnSale(productId)
+        productFacade.getProductOnSale(productId, userId ?: "ANONYMOUS")
             .let { ProductV1Dto.Response.ProductResponse.from(it) }
             .let { ApiResponse.success(it) }
 

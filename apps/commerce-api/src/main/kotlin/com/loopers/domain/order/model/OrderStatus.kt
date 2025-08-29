@@ -2,6 +2,7 @@ package com.loopers.domain.order.model
 
 enum class OrderStatus {
     PENDING,
+    FAILED,
+    COMPLETED,
     CANCELLED,
-    SHIPPED,
 }

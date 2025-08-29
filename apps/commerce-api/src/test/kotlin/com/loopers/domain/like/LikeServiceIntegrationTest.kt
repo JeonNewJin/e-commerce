@@ -1,37 +1,43 @@
 package com.loopers.domain.like
 
 import com.loopers.domain.like.entity.Like
-import com.loopers.domain.like.entity.LikeCount
 import com.loopers.domain.like.model.LikeableType.PRODUCT
 import com.loopers.domain.like.vo.LikeTarget
-import com.loopers.infrastructure.like.LikeCountJpaRepository
+import com.loopers.domain.product.entity.Product
+import com.loopers.domain.product.model.ProductStatus.SALE
 import com.loopers.infrastructure.like.LikeJpaRepository
+import com.loopers.infrastructure.product.ProductJpaRepository
 import com.loopers.support.IntegrationTestSupport
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 class LikeServiceIntegrationTest(
     private val likeService: LikeService,
-    private val likeCountJpaRepository: LikeCountJpaRepository,
     private val likeJpaRepository: LikeJpaRepository,
+    private val productJpaRepository: ProductJpaRepository,
 ) : IntegrationTestSupport() {
 
     @Test
     fun `좋아요 카운트가 0인 상품에, 3명의 사용자가 동시에 좋아요를 누르면, 모든 요청이 성공하고 좋아요 카운트가 3이 된다`() {
         // Given
-        val targetId = 100L
         val targetType = PRODUCT
         val initialCount = 0L
 
-        val likeCount = LikeCount(
-            targetId = targetId,
-            targetType = targetType,
-            count = initialCount,
+        val product = Product(
+            brandId = 1L,
+            name = "테스트 상품",
+            price = BigDecimal("10000"),
+            publishedAt = "2025-07-30",
+            status = SALE,
+            likeCount = initialCount,
         )
-        likeCountJpaRepository.save(likeCount)
+        productJpaRepository.save(product)
 
         val threadCount = 3
         val latch = CountDownLatch(threadCount)
@@ -46,7 +52,7 @@ class LikeServiceIntegrationTest(
                 try {
                     val command = LikeCommand.Like(
                         userId = userId,
-                        targetId = targetId,
+                        targetId = product.id,
                         targetType = targetType,
                     )
                     likeService.like(command)
@@ -64,11 +70,16 @@ class LikeServiceIntegrationTest(
         executor.shutdown()
 
         // Then
-        val actualLikeCount = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))!!
-        val actualLikes = likeJpaRepository.findAllByTarget(LikeTarget(targetId, targetType))
-
-        assertThat(actualLikeCount.count).isEqualTo(3)
+        val actualLikes = likeJpaRepository.findAllByTarget(LikeTarget(product.id, targetType))
         assertThat(actualLikes).hasSize(3)
+
+        await()
+            .atMost(Duration.ofSeconds(2))
+            .pollInterval(Duration.ofMillis(100))
+            .untilAsserted {
+                val product = productJpaRepository.findById(product.id).orElseThrow()
+                assertThat(product.likeCount).isEqualTo(3)
+            }
 
         assertThat(successCount.get()).isEqualTo(3)
         assertThat(failureCount.get()).isZero()
@@ -77,21 +88,23 @@ class LikeServiceIntegrationTest(
     @Test
     fun `좋아요 카운트가 3인 상품에, 3명의 사용자가 동시에 좋아요를 취소하면, 모든 요청이 성공하고 좋아요 카운트가 0이 된다`() {
         // Given
-        val targetId = 300L
         val targetType = PRODUCT
         val initialCount = 3L
 
-        val likeCount = LikeCount(
-            targetId = targetId,
-            targetType = targetType,
-            count = initialCount,
+        val product = Product(
+            brandId = 1L,
+            name = "테스트 상품",
+            price = BigDecimal("10000"),
+            publishedAt = "2025-07-30",
+            status = SALE,
+            likeCount = initialCount,
         )
-        likeCountJpaRepository.save(likeCount)
+        productJpaRepository.save(product)
 
         val initialUsers = (1..3).map { userId ->
             Like(
                 userId = userId.toLong(),
-                targetId = targetId,
+                targetId = product.id,
                 targetType = targetType,
             )
         }
@@ -110,7 +123,7 @@ class LikeServiceIntegrationTest(
                 try {
                     val command = LikeCommand.Unlike(
                         userId = userId,
-                        targetId = targetId,
+                        targetId = product.id,
                         targetType = targetType,
                     )
                     likeService.unlike(command)
@@ -128,11 +141,16 @@ class LikeServiceIntegrationTest(
         executor.shutdown()
 
         // Then
-        val actualLikeCount = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))!!
-        val actualLikes = likeJpaRepository.findAllByTarget(LikeTarget(targetId, targetType))
-
-        assertThat(actualLikeCount.count).isEqualTo(0)
+        val actualLikes = likeJpaRepository.findAllByTarget(LikeTarget(product.id, targetType))
         assertThat(actualLikes).isEmpty()
+
+        await()
+            .atMost(Duration.ofSeconds(2))
+            .pollInterval(Duration.ofMillis(100))
+            .untilAsserted {
+                val product = productJpaRepository.findById(product.id).orElseThrow()
+                assertThat(product.likeCount).isEqualTo(0)
+            }
 
         assertThat(successCount.get()).isEqualTo(3)
         assertThat(failureCount.get()).isZero()
@@ -145,18 +163,21 @@ class LikeServiceIntegrationTest(
         val targetType = PRODUCT
         val initialCount = 3L
 
-        val likeCount = LikeCount(
-            targetId = targetId,
-            targetType = targetType,
-            count = initialCount,
+        val product = Product(
+            brandId = 1L,
+            name = "테스트 상품",
+            price = BigDecimal("10000"),
+            publishedAt = "2025-07-30",
+            status = SALE,
+            likeCount = initialCount,
         )
-        likeCountJpaRepository.save(likeCount)
+        productJpaRepository.save(product)
 
         // 3명의 사용자가 이미 좋아요를 누른 상태
         val initialUsers = (1..3).map { userId ->
             Like(
                 userId = userId.toLong(),
-                targetId = targetId,
+                targetId = product.id,
                 targetType = targetType,
             )
         }
@@ -177,7 +198,7 @@ class LikeServiceIntegrationTest(
                 try {
                     val command = LikeCommand.Unlike(
                         userId = userId,
-                        targetId = targetId,
+                        targetId = product.id,
                         targetType = targetType,
                     )
                     likeService.unlike(command)
@@ -198,7 +219,7 @@ class LikeServiceIntegrationTest(
                 try {
                     val command = LikeCommand.Like(
                         userId = userId,
-                        targetId = targetId,
+                        targetId = product.id,
                         targetType = targetType,
                     )
                     likeService.like(command)
@@ -216,12 +237,18 @@ class LikeServiceIntegrationTest(
         executor.shutdown()
 
         // Then
-        val actualLikeCount = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))!!
-        val actualLikes = likeJpaRepository.findAllByTarget(LikeTarget(targetId, targetType))
+        val actualLikes = likeJpaRepository.findAllByTarget(LikeTarget(product.id, targetType))
 
-        assertThat(actualLikeCount.count).isEqualTo(3L)
         assertThat(actualLikes).hasSize(3)
         assertThat(actualLikes.map { it.userId }).containsExactlyInAnyOrder(4L, 5L, 6L)
+
+        await()
+            .atMost(Duration.ofSeconds(2))
+            .pollInterval(Duration.ofMillis(100))
+            .untilAsserted {
+                val product = productJpaRepository.findById(product.id).orElseThrow()
+                assertThat(product.likeCount).isEqualTo(3)
+            }
 
         assertThat(likeSuccessCount.get()).isEqualTo(3)
         assertThat(unlikeSuccessCount.get()).isEqualTo(3)

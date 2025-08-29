@@ -27,4 +27,24 @@ class ProductService(private val productRepository: ProductRepository) {
     fun findProductsByIds(productIds: List<Long>): List<ProductInfo> =
         productRepository.findAllByIds(productIds)
             .map { ProductInfo.from(it) }
+
+    @Transactional
+    fun increaseLikeCount(productId: Long) {
+        val product = productRepository.findByIdWithLock(productId)
+            ?: throw CoreException(NOT_FOUND, "해당 상품을 찾을 수 없습니다.")
+
+        product.increaseLikeCount()
+
+        productRepository.save(product)
+    }
+
+    @Transactional
+    fun decreaseLikeCount(productId: Long) {
+        val product = productRepository.findByIdWithLock(productId)
+            ?: throw CoreException(NOT_FOUND, "해당 상품을 찾을 수 없습니다.")
+
+        product.decreaseLikeCount()
+
+        productRepository.save(product)
+    }
 }

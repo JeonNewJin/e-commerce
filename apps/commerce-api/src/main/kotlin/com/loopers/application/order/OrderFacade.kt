@@ -1,12 +1,11 @@
 package com.loopers.application.order
 
-import com.loopers.domain.coupon.CouponCommand
 import com.loopers.domain.coupon.CouponService
 import com.loopers.domain.order.OrderCommand
+import com.loopers.domain.order.OrderEvent
+import com.loopers.domain.order.OrderEventPublisher
 import com.loopers.domain.order.OrderService
 import com.loopers.domain.order.entity.OrderLine
-import com.loopers.domain.payment.PaymentCommand
-import com.loopers.domain.payment.PaymentService
 import com.loopers.domain.product.ProductService
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
@@ -18,11 +17,11 @@ class OrderFacade(
     private val productService: ProductService,
     private val orderService: OrderService,
     private val couponService: CouponService,
-    private val paymentService: PaymentService,
+    private val orderEventPublisher: OrderEventPublisher,
 ) {
 
     @Transactional
-    fun placeOrder(input: OrderInput.Order) {
+    fun placeOrder(input: OrderInput.Order): OrderOutput {
         val user = userService.getUser(input.loginId)
 
         val orderLines = input.orderItems.map {
@@ -38,18 +37,10 @@ class OrderFacade(
                 coupon = coupon,
             ),
         )
-        coupon?.let { couponService.use(CouponCommand.Use(couponId = input.couponId, userId = user.id)) }
 
-        paymentService.pay(
-            PaymentCommand.Pay(
-                userId = user.id,
-                orderCode = order.orderCode,
-                amount = order.paymentAmount,
-                paymentMethod = input.paymentMethod,
-                cardType = input.cardType,
-                cardNo = input.cardNo,
-            ),
-        )
+        orderEventPublisher.publish(OrderEvent.OrderPlaced.from(order, input))
+
+        return OrderOutput.from(order)
     }
 
     @Transactional(readOnly = true)

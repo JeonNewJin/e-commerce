@@ -14,6 +14,7 @@ class PaymentService(
     paymentProcessors: List<PaymentProcessor>,
     private val paymentRepository: PaymentRepository,
     private val paymentGateway: PaymentGateway,
+    private val paymentEventPublisher: PaymentEventPublisher,
 ) {
 
     private val paymentProcessorMap by lazy { paymentProcessors.associateBy { it.paymentMethod() } }
@@ -32,6 +33,9 @@ class PaymentService(
             ?: throw CoreException(NOT_FOUND, "결제 정보를 찾을 수 없습니다. 주문 코드: ${command.orderCode}")
 
         payment.complete(command.transactionKey, command.paidAt)
+
+        paymentEventPublisher.publish(PaymentEvent.PaymentCompleted.from(payment))
+
         paymentRepository.save(payment)
     }
 

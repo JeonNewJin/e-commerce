@@ -38,7 +38,9 @@ resilience4j:
     instances:
       pgRetry:
         max-attempts: 3 # 최초 요청 1회 + 재시도 2회 = 총 3번
-        wait-duration: 1s
+        wait-duration: 1s # 재시도 간 기본 대기 시간 (첫 재시도 전 대기 시간)
+        enable-exponential-backoff: true  # 지수 백오프 활성화 (재시도 시 대기 시간이 배수로 증가)
+        exponential-backoff-multiplier: 2 # 지수 백오프 배수, 대기 시간이 1s → 2s → 4s 순으로 증가
         retry-exceptions:
           - feign.FeignException.InternalServerError
           - feign.RetryableException # 타임아웃 등 네트워크 예외도 모두 커버
@@ -46,7 +48,7 @@ resilience4j:
           - java.net.SocketTimeoutException
         ignore-exceptions:
           - feign.FeignException.BadRequest # 400 비즈니스 예외 무시
-        fail-after-max-attempts: true
+        fail-after-max-attempts: true # 최대 재시도 횟수 초과시 예외 발생 (재시도 실패 처리)
 
   circuitbreaker:
     instances:

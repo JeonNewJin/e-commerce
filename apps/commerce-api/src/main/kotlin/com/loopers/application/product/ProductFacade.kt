@@ -2,6 +2,8 @@ package com.loopers.application.product
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.loopers.domain.brand.BrandService
+import com.loopers.domain.product.ProductEvent
+import com.loopers.domain.product.ProductEventPublisher
 import com.loopers.domain.product.ProductService
 import com.loopers.domain.support.cache.CacheKeyGenerator
 import com.loopers.domain.support.cache.CacheKeys
@@ -16,10 +18,11 @@ class ProductFacade(
     private val productService: ProductService,
     private val brandService: BrandService,
     private val cacheTemplate: CacheTemplate,
+    private val productEventPublisher: ProductEventPublisher,
 ) {
 
     @Transactional(readOnly = true)
-    fun getProductOnSale(productId: Long): ProductOutput {
+    fun getProductOnSale(productId: Long, userId: String): ProductOutput {
         val cacheKey = CacheKeyGenerator.generate(
             namespace = CacheKeys.PRODUCT_DETAIL,
             params = mapOf("productId" to productId),
@@ -42,6 +45,9 @@ class ProductFacade(
         val brand = brandService.getBrand(product.brandId)
         val result = ProductOutput.of(product, brand)
         cacheTemplate.set(cacheKey, result, Duration.ofMinutes(3))
+
+        productEventPublisher.publish(ProductEvent.ProductViewed(userId = userId, productId = productId))
+
         return result
     }
 
