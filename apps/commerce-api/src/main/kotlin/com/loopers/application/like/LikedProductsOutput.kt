@@ -39,7 +39,7 @@ data class LikedProductsOutput(
                     price = product.price,
                     publishedAt = product.publishedAt,
                     status = product.status,
-                    likeCount = likeCount,
+                    likeCount = product.likeCount,
                     brandId = brand.id,
                     brandName = brand.name,
                     brandDescription = brand.description,

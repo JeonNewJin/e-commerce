@@ -12,6 +12,10 @@ class ProductCoreRepository(
     private val customRepository: ProductCustomRepository,
 ) : ProductRepository {
 
+    override fun save(product: Product) {
+        productJpaRepository.save(product)
+    }
+
     override fun findById(productId: Long): Product? = productJpaRepository.findById(productId).orElse(null)
 
     override fun findProductsOnSale(command: ProductCommand.FindProductsOnSale): Page<Product> =
@@ -24,4 +28,6 @@ class ProductCoreRepository(
 
         return productJpaRepository.findByIdIn(productIds)
     }
+
+    override fun findByIdWithLock(productId: Long): Product? = productJpaRepository.findByIdWithLock(productId)
 }

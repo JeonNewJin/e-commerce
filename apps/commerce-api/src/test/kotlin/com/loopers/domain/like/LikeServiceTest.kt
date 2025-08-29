@@ -1,8 +1,8 @@
 package com.loopers.domain.like
 
-import com.loopers.domain.like.model.LikeableType.PRODUCT
 import com.loopers.domain.like.entity.Like
 import com.loopers.domain.like.entity.LikeCount
+import com.loopers.domain.like.model.LikeableType.PRODUCT
 import com.loopers.domain.like.vo.LikeTarget
 import com.loopers.infrastructure.like.LikeCountJpaRepository
 import com.loopers.infrastructure.like.LikeJpaRepository
@@ -14,7 +14,9 @@ import org.assertj.core.groups.Tuple.tuple
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
+import org.springframework.test.context.event.ApplicationEvents
 
 class LikeServiceTest(
     private val likeService: LikeService,
@@ -22,7 +24,11 @@ class LikeServiceTest(
     private val likeRepository: LikeRepository,
     private val likeJpaRepository: LikeJpaRepository,
     private val likeCountJpaRepository: LikeCountJpaRepository,
+    private val likeEventPublisher: LikeEventPublisher,
 ) : IntegrationTestSupport() {
+
+    @Autowired
+    lateinit var applicationEvents: ApplicationEvents
 
     @Nested
     inner class `좋아요를 등록할 때 ` {
@@ -52,11 +58,10 @@ class LikeServiceTest(
 
             // Then
             verify(exactly = 0) { likeRepository.save(any()) }
-            verify(exactly = 0) { likeRepository.saveLikeCount(any()) }
         }
 
         @Test
-        fun `등록된 좋아요가 존재하지 않으면, 좋아요를 등록하고, 좋아요 카운트를 증가시킨다`() {
+        fun `등록된 좋아요가 존재하지 않으면, 좋아요를 등록한다`() {
             // Given
             val userId = 1L
             val targetId = 100L
@@ -66,13 +71,6 @@ class LikeServiceTest(
                 targetId = targetId,
                 targetType = targetType,
             )
-
-            val likeCount = LikeCount(
-                targetId = targetId,
-                targetType = targetType,
-                count = 10L,
-            )
-            likeCountJpaRepository.save(likeCount)
 
             // When
             likeService.like(command)
@@ -88,19 +86,11 @@ class LikeServiceTest(
                 { assertThat(findLike!!.target.id).isEqualTo(100L) },
                 { assertThat(findLike!!.target.type).isEqualTo(PRODUCT) },
             )
-
-            val findLikeCount = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))
-
-            assertAll(
-                { assertThat(findLikeCount!!.target.id).isEqualTo(100L) },
-                { assertThat(findLikeCount!!.target.type).isEqualTo(PRODUCT) },
-                { assertThat(findLikeCount!!.count).isEqualTo(11L) },
-            )
         }
 
         @Test
-        fun `좋아요 카운트가 존재하지 않으면, 좋아요 카운트를 생성한다`() {
-            // Given
+        fun `좋아요가 정상적으로 등록되면, 좋아요 생성 이벤트가 발행된다`() {
+            // given
             val userId = 1L
             val targetId = 100L
             val targetType = PRODUCT
@@ -110,18 +100,15 @@ class LikeServiceTest(
                 targetType = targetType,
             )
 
-            // When
+            // when
             likeService.like(command)
 
-            // Then
-            val actual = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))
+            // then
+            val eventCount = applicationEvents.stream(LikeEvent.LikeCreated::class.java)
+                .filter { it.userId == userId && it.targetId == targetId && it.targetType == targetType }
+                .count()
 
-            assertAll(
-                { assertThat(actual).isNotNull() },
-                { assertThat(actual!!.target.id).isEqualTo(100L) },
-                { assertThat(actual!!.target.type).isEqualTo(PRODUCT) },
-                { assertThat(actual!!.count).isEqualTo(1L) },
-            )
+            assertThat(eventCount).isEqualTo(1)
         }
     }
 
@@ -146,57 +133,10 @@ class LikeServiceTest(
 
             // Then
             verify(exactly = 0) { likeRepository.delete(any()) }
-            verify(exactly = 0) { likeRepository.saveLikeCount(any()) }
         }
 
         @Test
-        fun `등록된 좋아요가 존재하면, 좋아요를 삭제하고 좋아요 카운트를 감소시킨다`() {
-            // Given
-            val userId = 1L
-            val targetId = 100L
-            val targetType = PRODUCT
-
-            val like = Like(
-                userId = userId,
-                targetId = targetId,
-                targetType = targetType,
-            )
-            likeJpaRepository.save(like)
-
-            val likeCount = LikeCount(
-                targetId = targetId,
-                targetType = targetType,
-                count = 5L,
-            )
-            likeCountJpaRepository.save(likeCount)
-
-            val command = LikeCommand.Unlike(
-                userId = userId,
-                targetId = targetId,
-                targetType = targetType,
-            )
-
-            // When
-            likeService.unlike(command)
-
-            // Then
-            val findLike = likeJpaRepository.findByUserIdAndTarget(
-                userId,
-                LikeTarget(targetId, targetType),
-            )
-            assertThat(findLike).isNull()
-
-            val findLikeCount = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))
-
-            assertAll(
-                { assertThat(findLikeCount!!.target.id).isEqualTo(100L) },
-                { assertThat(findLikeCount!!.target.type).isEqualTo(PRODUCT) },
-                { assertThat(findLikeCount!!.count).isEqualTo(4L) },
-            )
-        }
-
-        @Test
-        fun `좋아요 카운트가 존재하지 않으면, 좋아요만 삭제하고 return한다`() {
+        fun `등록된 좋아요가 존재하면, 좋아요를 삭제한다`() {
             // Given
             val userId = 1L
             val targetId = 100L
@@ -224,9 +164,37 @@ class LikeServiceTest(
                 LikeTarget(targetId, targetType),
             )
             assertThat(findLike).isNull()
+        }
 
-            val findLikeCount = likeCountJpaRepository.findByTarget(LikeTarget(targetId, targetType))
-            assertThat(findLikeCount).isNull()
+        @Test
+        fun `좋아요가 정상적으로 취소되면, 좋아요 취소 이벤트가 발행된다`() {
+            // given
+            val userId = 1L
+            val targetId = 100L
+            val targetType = PRODUCT
+
+            val like = Like(
+                userId = userId,
+                targetId = targetId,
+                targetType = targetType,
+            )
+            likeJpaRepository.save(like)
+
+            val command = LikeCommand.Unlike(
+                userId = userId,
+                targetId = targetId,
+                targetType = targetType,
+            )
+
+            // When
+            likeService.unlike(command)
+
+            // then
+            val eventCount = applicationEvents.stream(LikeEvent.LikeDeleted::class.java)
+                .filter { it.userId == userId && it.targetId == targetId && it.targetType == targetType }
+                .count()
+
+            assertThat(eventCount).isEqualTo(1)
         }
     }
 
