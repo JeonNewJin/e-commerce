@@ -4,6 +4,7 @@ import com.loopers.domain.order.OrderEvent
 import com.loopers.domain.payment.PaymentCommand
 import com.loopers.domain.payment.PaymentService
 import com.loopers.infrastructure.external.DataPlatformMockApiClient
+import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT
@@ -14,10 +15,13 @@ class OrderEventListener(
     private val paymentService: PaymentService,
     private val dataPlatformMockApiClient: DataPlatformMockApiClient,
 ) {
+    private val logger = LoggerFactory.getLogger(OrderEventListener::class.java)
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     fun handle(event: OrderEvent.OrderPlaced) {
+        logger.info("Order Placed Event : {}", event)
+
         paymentService.pay(
             PaymentCommand.Pay(
                 userId = event.userId,

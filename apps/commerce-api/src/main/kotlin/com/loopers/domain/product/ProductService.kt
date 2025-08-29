@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(readOnly = true)
 @Service
-class ProductService(private val productRepository: ProductRepository, repository: ProductRepository) {
+class ProductService(private val productRepository: ProductRepository) {
 
     fun getProductOnSale(productId: Long): ProductInfo {
         val product = productRepository.findById(productId)

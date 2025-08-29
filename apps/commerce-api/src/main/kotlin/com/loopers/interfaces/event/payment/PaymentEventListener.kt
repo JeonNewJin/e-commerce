@@ -8,6 +8,7 @@ import com.loopers.domain.payment.PaymentEvent
 import com.loopers.domain.stock.StockCommand
 import com.loopers.domain.stock.StockService
 import com.loopers.infrastructure.external.DataPlatformMockApiClient
+import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation.REQUIRES_NEW
@@ -23,11 +24,14 @@ class PaymentEventListener(
     private val dataPlatformMockApiClient: DataPlatformMockApiClient,
     private val objectMapper: ObjectMapper,
 ) {
+    private val logger = LoggerFactory.getLogger(PaymentEventListener::class.java)
 
     @Order(1)
     @TransactionalEventListener(phase = AFTER_COMMIT)
     @Transactional(propagation = REQUIRES_NEW)
     fun handle(event: PaymentEvent.PaymentCompleted) {
+        logger.info("Payment completed event received: $event")
+
         // PG 결제 취소
         // ...
 
