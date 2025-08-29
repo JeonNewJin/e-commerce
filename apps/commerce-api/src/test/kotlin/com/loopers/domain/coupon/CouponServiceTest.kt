@@ -1,6 +1,7 @@
 package com.loopers.domain.coupon
 
 import com.loopers.domain.coupon.entity.Coupon
+import com.loopers.domain.coupon.entity.IssuedCoupon
 import com.loopers.domain.coupon.model.DiscountType.FIXED_AMOUNT
 import com.loopers.domain.coupon.model.DiscountType.PERCENTAGE
 import com.loopers.domain.coupon.model.IssuedCouponStatus.AVAILABLE
@@ -133,6 +134,60 @@ class CouponServiceTest(
             val actual = issuedCouponJpaRepository.findByCouponIdAndUserId(couponId, userId)!!
 
             assertThat(actual.status).isEqualTo(USED)
+        }
+    }
+
+    @Nested
+    inner class `쿠폰을 사용을 취소할 때, ` {
+
+        @Test
+        fun `취소 가능한 쿠폰이 존재하지 않으면, NOT_FOUND 예외가 발생한다`() {
+            // given
+            val nonExistentCouponId = 999L
+            val userId = 1L
+
+            val command = CouponCommand.Cancel(
+                couponId = nonExistentCouponId,
+                userId = userId,
+            )
+
+            // when
+            val actual = assertThrows<CoreException> {
+                couponService.cancelCouponUsage(command)
+            }
+
+            // then
+            assertAll(
+                { assertThat(actual.errorType).isEqualTo(NOT_FOUND) },
+                { assertThat(actual.message).isEqualTo("취소 가능한 쿠폰을 찾을 수 없습니다.") },
+            )
+        }
+
+        @Test
+        fun `취소 가능한 쿠폰이 존재하면, 정상적으로 사용 취소된다`() {
+            // given
+            val couponId = 1L
+            val userId = 2L
+            val issuedCoupon = IssuedCoupon(
+                couponId = couponId,
+                userId = userId,
+                status = USED,
+                issuedAt = java.time.LocalDateTime.now(),
+                usedAt = java.time.LocalDateTime.now(),
+            )
+            issuedCouponJpaRepository.save(issuedCoupon)
+
+            val command = CouponCommand.Cancel(couponId = couponId, userId = userId)
+
+            // when
+            couponService.cancelCouponUsage(command)
+
+            // then
+            val actual = issuedCouponJpaRepository.findByCouponIdAndUserId(couponId, userId)!!
+            assertAll(
+                { assertThat(actual.status).isEqualTo(AVAILABLE) },
+                { assertThat(actual.usedAt).isNull() },
+            )
         }
     }
 

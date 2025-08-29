@@ -5,8 +5,8 @@ import com.loopers.domain.point.PointWalletRepository
 import com.loopers.domain.point.vo.Point
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType.NOT_FOUND
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class PointPaymentProcessor(private val pointWalletRepository: PointWalletRepository) : PaymentProcessor {

@@ -43,4 +43,13 @@ class IssuedCoupon(
         status = USED
         usedAt = LocalDateTime.now()
     }
+
+    fun cancel() {
+        require(status == USED) {
+            throw CoreException(CONFLICT, "사용된 쿠폰만 취소할 수 있습니다.")
+        }
+
+        status = AVAILABLE
+        usedAt = null
+    }
 }

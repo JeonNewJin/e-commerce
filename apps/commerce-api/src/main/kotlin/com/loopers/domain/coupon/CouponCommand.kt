@@ -9,4 +9,6 @@ class CouponCommand private constructor() {
     data class Use(val couponId: Long, val userId: Long)
 
     data class CalculateDiscount(val couponId: Long, val orderAmount: BigDecimal)
+
+    data class Cancel(val couponId: Long, val userId: Long)
 }
