@@ -1,7 +1,6 @@
 package com.loopers.domain.like
 
 import com.loopers.domain.like.entity.Like
-import com.loopers.domain.like.entity.LikeCount
 import com.loopers.domain.like.model.LikeCountInfo
 import com.loopers.domain.like.model.LikeInfo
 import com.loopers.domain.like.model.LikeableType
@@ -12,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional(readOnly = true)
 @Service
-class LikeService(private val likeRepository: LikeRepository) {
+class LikeService(private val likeRepository: LikeRepository, private val likeEventPublisher: LikeEventPublisher) {
 
     @Transactional
     fun like(command: LikeCommand.Like) {
@@ -28,14 +27,7 @@ class LikeService(private val likeRepository: LikeRepository) {
         )
         likeRepository.save(like)
 
-        val likeCount = likeRepository.findLikeCountByTargetWithLock(like.target)
-            ?: LikeCount(
-                targetId = command.targetId,
-                targetType = command.targetType,
-            )
-
-        likeCount.increase()
-        likeRepository.saveLikeCount(likeCount)
+        likeEventPublisher.publish(LikeEvent.LikeCreated(like.userId, like.target.type, like.target.id))
     }
 
     @Transactional
@@ -47,11 +39,7 @@ class LikeService(private val likeRepository: LikeRepository) {
 
         likeRepository.delete(like)
 
-        val likeCount = likeRepository.findLikeCountByTargetWithLock(like.target)
-            ?: return
-
-        likeCount.decrease()
-        likeRepository.saveLikeCount(likeCount)
+        likeEventPublisher.publish(LikeEvent.LikeDeleted(like.userId, like.target.type, like.target.id))
     }
 
     fun findLikes(command: LikeCommand.FindLikes): Page<LikeInfo> =

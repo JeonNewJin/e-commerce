@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.payment
 
-import com.loopers.application.payment.PaymentInput
+import com.loopers.domain.payment.PaymentCommand
 import com.loopers.domain.payment.model.CardType
 import com.loopers.domain.payment.model.TransactionStatus
 
@@ -17,15 +17,10 @@ object PaymentV1Dto {
             val status: TransactionStatusDto,
             val reason: String?,
         ) {
-            fun toInput(paidAt: String): PaymentInput.Complete =
-                PaymentInput.Complete(
+            fun toCommand(paidAt: String): PaymentCommand.Complete =
+                PaymentCommand.Complete(
+                    orderCode = orderId,
                     transactionKey = transactionKey,
-                    orderId = orderId,
-                    cardType = cardType.toCardType(),
-                    cardNo = cardNo,
-                    amount = amount,
-                    status = status.toTransactionStatus(),
-                    reason = reason,
                     paidAt = paidAt,
                 )
         }

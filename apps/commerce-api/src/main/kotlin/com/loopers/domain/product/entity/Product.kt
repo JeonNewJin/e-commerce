@@ -66,4 +66,14 @@ class Product(brandId: Long, name: String, price: BigDecimal, publishedAt: Strin
             throw CoreException(NOT_FOUND, "해당 상품은 판매 중이 아닙니다.")
         }
     }
+
+    fun increaseLikeCount() {
+        likeCount++
+    }
+
+    fun decreaseLikeCount() {
+        if (likeCount > 0) {
+            likeCount--
+        }
+    }
 }

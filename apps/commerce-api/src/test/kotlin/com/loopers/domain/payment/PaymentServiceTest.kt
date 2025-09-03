@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.event.ApplicationEvents
 import java.math.BigDecimal
 import java.util.UUID
 
@@ -34,6 +36,9 @@ class PaymentServiceTest(
     private val pointPaymentProcessor: PointPaymentProcessor,
     private val paymentJpaRepository: PaymentJpaRepository,
 ) : IntegrationTestSupport() {
+
+    @Autowired
+    lateinit var applicationEvents: ApplicationEvents
 
     @BeforeEach
     fun setUp() {
@@ -139,6 +144,39 @@ class PaymentServiceTest(
             assertThat(actual.status).isEqualTo(SUCCESS)
             assertThat(actual.transactionKey).isEqualTo("transaction-key")
             assertThat(actual.paidAt).isEqualTo("2023-10-01T12:00:00")
+        }
+
+        @Test
+        fun `정상적으로 완료 처리하고, 결제 완료 이벤트를 발행한다`() {
+            // given
+            val orderCode = UUID.randomUUID().toString()
+
+            val payment = Payment(
+                orderCode = orderCode,
+                userId = 1L,
+                amount = BigDecimal(10_000L),
+                paymentMethod = CARD,
+                cardType = HYUNDAI,
+                cardNo = "1234-1234-1234-1234",
+                status = PENDING,
+            )
+            paymentJpaRepository.save(payment)
+
+            val command = PaymentCommand.Complete(
+                orderCode = orderCode,
+                transactionKey = "transaction-key",
+                paidAt = "2023-10-01T12:00:00",
+            )
+
+            // when
+            paymentService.complete(command)
+
+            // then
+            val eventCount = applicationEvents.stream(PaymentEvent.PaymentCompleted::class.java)
+                .filter { it.orderCode == orderCode && it.transactionKey == "transaction-key" }
+                .count()
+
+            assertThat(eventCount).isEqualTo(1)
         }
     }
 }

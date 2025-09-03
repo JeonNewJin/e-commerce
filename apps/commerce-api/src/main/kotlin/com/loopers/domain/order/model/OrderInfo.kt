@@ -10,6 +10,7 @@ data class OrderInfo(
     val orderLines: List<OrderLineInfo>,
     val totalPrice: BigDecimal,
     val paymentAmount: BigDecimal,
+    val couponId: Long?,
     val status: OrderStatus,
     val createdAt: String,
 ) {
@@ -22,6 +23,7 @@ data class OrderInfo(
                 orderLines = order.orderLines.map { OrderLineInfo.from(it) },
                 totalPrice = order.totalPrice,
                 paymentAmount = order.paymentAmount,
+                couponId = order.couponId,
                 status = order.status,
                 createdAt = order.createdAt.toString(),
             )
