@@ -25,6 +25,14 @@ spring:
       - logging.yml
       - monitoring.yml
 
+audit-kafka:
+  local:
+    topic-name: audit-events-v1
+
+catalog-kafka:
+  local:
+    topic-name: catalog-events-v1
+
 demo-kafka:
   test:
     topic-name: demo.internal.topic-v1
@@ -34,6 +42,13 @@ spring:
   config:
     activate:
       on-profile: local, test
+
+server:
+  port: 8084
+
+management:
+  server:
+    port: 8085
 
 ---
 spring:

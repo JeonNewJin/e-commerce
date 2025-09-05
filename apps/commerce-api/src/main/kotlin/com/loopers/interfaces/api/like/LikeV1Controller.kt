@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 class LikeV1Controller(private val likeFacade: LikeFacade) : LikeV1ApiSpec {
 
     @ResponseStatus(CREATED)
-    @PostMapping("{productId}")
+    @PostMapping("/{productId}")
     override fun like(
         @RequestHeader(name = "X-USER-ID") userId: String,
         @PathVariable productId: Long,
@@ -35,7 +35,7 @@ class LikeV1Controller(private val likeFacade: LikeFacade) : LikeV1ApiSpec {
     }
 
     @ResponseStatus(NO_CONTENT)
-    @DeleteMapping("{productId}")
+    @DeleteMapping("/{productId}")
     override fun unlike(
         @RequestHeader(name = "X-USER-ID") userId: String,
         @PathVariable productId: Long,
