@@ -13,15 +13,7 @@ class EventHandledService(private val eventHandledRepository: EventHandledReposi
 
     @Transactional
     fun saveAll(command: List<EventHandledCommand.Create>) {
-        val eventHandles = command.map {
-            EventHandled(
-                eventId = it.eventId,
-                topic = it.topic,
-                partition = it.partition,
-                offset = it.offset,
-                timestamp = it.timestamp,
-            )
-        }
+        val eventHandles = command.map { EventHandled(eventId = it.eventId) }
         eventHandledRepository.saveAll(eventHandles)
     }
 }

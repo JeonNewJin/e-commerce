@@ -4,5 +4,5 @@ interface ProductMetricsProcessor {
 
     fun collectMethod(): CollectMethod
 
-    fun process(command: ProductMetricsCommand.Collect)
+    fun process(command: List<ProductMetricsCommand.Collect>)
 }

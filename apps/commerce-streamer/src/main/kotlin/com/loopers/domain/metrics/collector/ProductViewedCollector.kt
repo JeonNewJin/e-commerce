@@ -1,6 +1,7 @@
 package com.loopers.domain.metrics.collector
 
 import com.loopers.domain.metrics.CollectMethod
+import com.loopers.domain.metrics.CollectMethod.PRODUCT_VIEWED
 import com.loopers.domain.metrics.ProductMetrics
 import com.loopers.domain.metrics.ProductMetricsCommand
 import com.loopers.domain.metrics.ProductMetricsProcessor
@@ -12,14 +13,18 @@ import java.time.LocalDate
 @Component
 class ProductViewedCollector(private val productMetricsRepository: ProductMetricsRepository) : ProductMetricsProcessor {
 
-    override fun collectMethod(): CollectMethod = CollectMethod.PRODUCT_VIEWED
+    override fun collectMethod(): CollectMethod = PRODUCT_VIEWED
 
     @Transactional
-    override fun process(command: ProductMetricsCommand.Collect) {
-        val productMetrics = productMetricsRepository.findByProductIdAndDate(command.productId, LocalDate.now())
-            ?: ProductMetrics.create(command.productId, LocalDate.now())
+    override fun process(command: List<ProductMetricsCommand.Collect>) {
+        val productIdCountMap = command.groupingBy { it.productId }.eachCount()
 
-        productMetrics.increaseViewCount()
-        productMetricsRepository.save(productMetrics)
+        productIdCountMap.forEach { (productId, count) ->
+            val productMetrics = productMetricsRepository.findByProductIdAndDate(productId, LocalDate.now())
+                ?: ProductMetrics.create(productId, LocalDate.now())
+
+            productMetrics.addViewCount(count.toLong())
+            productMetricsRepository.save(productMetrics)
+        }
     }
 }

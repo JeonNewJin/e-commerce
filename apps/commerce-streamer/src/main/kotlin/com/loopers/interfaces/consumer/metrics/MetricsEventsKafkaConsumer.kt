@@ -6,17 +6,10 @@ import com.loopers.domain.event.EventHandledService
 import com.loopers.domain.metrics.CollectMethod
 import com.loopers.domain.metrics.ProductMetricsCommand
 import com.loopers.domain.metrics.ProductMetricsService
-import jakarta.transaction.Transactional
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.shaded.com.google.protobuf.Timestamp
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
-import org.springframework.kafka.support.KafkaHeaders.OFFSET
-import org.springframework.kafka.support.KafkaHeaders.RECEIVED_PARTITION
-import org.springframework.kafka.support.KafkaHeaders.RECEIVED_TOPIC
-import org.springframework.kafka.support.KafkaHeaders.TIMESTAMP
-import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
 
 @Component
@@ -32,12 +25,7 @@ class MetricsEventsKafkaConsumer(
         containerFactory = KafkaConfig.BATCH_LISTENER,
         groupId = "catalog-consumer-group",
     )
-    @Transactional
     fun catalogListener(
-        @Header(RECEIVED_TOPIC) topic: String,
-        @Header(RECEIVED_PARTITION) partition: Int,
-        @Header(OFFSET) offset: Long,
-        @Header(TIMESTAMP) timestamp: Timestamp,
         messages: List<ConsumerRecord<Any, Any>>,
         acknowledgment: Acknowledgment,
     ) {
@@ -52,10 +40,10 @@ class MetricsEventsKafkaConsumer(
             val notHandledEvents = events.filter { !alreadyHandles.contains(it.eventId) }.distinctBy { it.eventId }
 
             // 지표 수집
-            notHandledEvents.forEach { productMetricsService.collect(it.toMetricsCommand()) }
+            productMetricsService.collect(notHandledEvents.map { it.toMetricsCommand() })
 
             // 이벤트 처리 완료
-            eventHandledService.saveAll(notHandledEvents.map { it.toHandledCommand(topic, partition, offset, timestamp) })
+            eventHandledService.saveAll(notHandledEvents.map { it.toHandledCommand() })
         }
 
         acknowledgment.acknowledge()
@@ -74,18 +62,11 @@ data class CatalogEventDto(
             eventId = eventId,
             eventType = eventType.toCollectMethod(),
             productId = productId,
-            userId = userId,
             quantity = quantity,
         )
 
-    fun toHandledCommand(topic: String, partition: Int, offset: Long, timestamp: Timestamp): EventHandledCommand.Create =
-        EventHandledCommand.Create(
-            eventId = eventId,
-            topic = topic,
-            partition = partition,
-            offset = offset,
-            timestamp = timestamp,
-        )
+    fun toHandledCommand(): EventHandledCommand.Create =
+        EventHandledCommand.Create(eventId = eventId)
 
     enum class EventType {
         PRODUCT_LIKED,
