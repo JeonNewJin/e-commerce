@@ -12,7 +12,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
 @Component
-class MetricsEventsKafkaConsumer(private val catalogService: CatalogService) {
+class CatalogEventsKafkaConsumer(private val catalogService: CatalogService) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 

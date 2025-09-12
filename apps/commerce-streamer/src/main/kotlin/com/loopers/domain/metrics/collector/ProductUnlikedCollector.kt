@@ -1,6 +1,7 @@
 package com.loopers.domain.metrics.collector
 
 import com.loopers.domain.metrics.CollectMethod
+import com.loopers.domain.metrics.CollectMethod.PRODUCT_UNLIKED
 import com.loopers.domain.metrics.ProductMetricsCommand
 import com.loopers.domain.metrics.ProductMetricsProcessor
 import com.loopers.domain.metrics.ProductMetricsRepository
@@ -11,14 +12,18 @@ import java.time.LocalDate
 @Component
 class ProductUnlikedCollector(private val productMetricsRepository: ProductMetricsRepository) : ProductMetricsProcessor {
 
-    override fun collectMethod(): CollectMethod = CollectMethod.PRODUCT_UNLIKED
+    override fun collectMethod(): CollectMethod = PRODUCT_UNLIKED
 
     @Transactional
-    override fun process(command: ProductMetricsCommand.Collect) {
-        val productMetrics = productMetricsRepository.findByProductIdAndDate(command.productId, LocalDate.now())
-            ?: return
+    override fun process(command: List<ProductMetricsCommand.Collect>) {
+        val productIdCountMap = command.groupingBy { it.productId }.eachCount()
 
-        productMetrics.decreaseLikeCount()
-        productMetricsRepository.save(productMetrics)
+        productIdCountMap.forEach { (productId, count) ->
+            val productMetrics = productMetricsRepository.findByProductIdAndDate(productId, LocalDate.now())
+                ?: return
+
+            productMetrics.subtractLikeCount(count.toLong())
+            productMetricsRepository.save(productMetrics)
+        }
     }
 }

@@ -33,21 +33,19 @@ class ProductMetrics(productId: Long, date: LocalDate, likeCount: Long, viewCoun
             )
     }
 
-    fun increaseLikeCount() {
-        likeCount++
+    fun addLikeCount(count: Long) {
+        likeCount += count
     }
 
-    fun decreaseLikeCount() {
-        if (likeCount > 0) {
-            likeCount--
-        }
+    fun subtractLikeCount(count: Long) {
+        likeCount = (likeCount - count).coerceAtLeast(0)
     }
 
-    fun increaseViewCount() {
-        viewCount++
+    fun addViewCount(count: Long) {
+        viewCount += count
     }
 
-    fun increaseSalesCount() {
-        salesCount++
+    fun addSalesCount(count: Long) {
+        salesCount += count
     }
 }

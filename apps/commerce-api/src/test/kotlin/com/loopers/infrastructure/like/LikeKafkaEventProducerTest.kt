@@ -29,10 +29,9 @@ import java.time.Duration
 
 @EmbeddedKafka(
     partitions = 1,
-    topics = ["audit-events"],
+    topics = ["catalog-events-v1"],
     brokerProperties = [
-        "listeners=PLAINTEXT://localhost:9092",
-        "port=9092",
+        "listeners=PLAINTEXT://localhost:19092",
     ],
 )
 class LikeKafkaEventProducerTest(
@@ -55,7 +54,7 @@ class LikeKafkaEventProducerTest(
         @Bean
         fun testProducerFactory(): ProducerFactory<String, Any> {
             val configProps = mapOf(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:19092",
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to JsonSerializer::class.java,
             )
@@ -68,7 +67,7 @@ class LikeKafkaEventProducerTest(
         @Bean
         fun testConsumerFactory(): ConsumerFactory<String, Any> {
             val configProps = mapOf(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:19092",
                 ConsumerConfig.GROUP_ID_CONFIG to "test-group",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ByteArrayDeserializer::class.java,
